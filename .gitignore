@@ -1,0 +1,6 @@
+__pycache__/
+.mypy_cache/
+docs/_build
+build/
+dist/
+.coverage
