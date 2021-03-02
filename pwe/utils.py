@@ -1,4 +1,5 @@
 """This module implements utilities."""
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -7,15 +8,15 @@ def convmat(A: np.ndarray, P: int = 1, Q: int = 1, R: int = 1):
     NH = P * Q * R
     Nx, Ny, Nz = A.shape
 
-    p = np.arange(-P // 2, P // 2)
-    q = np.arange(-Q // 2, Q // 2)
-    r = np.arange(-R // 2, R // 2)
+    p = np.arange(-(P // 2), P//2 + 1)
+    q = np.arange(-(Q // 2), Q//2 + 1)
+    r = np.arange(-(R // 2), R//2 + 1)
 
     A = np.fft.fftshift(np.fft.fftn(A) / (Nx*Ny*Nz))
 
-    p_0 = 1 + Nx//2
-    q_0 = 1 + Ny//2
-    r_0 = 1 + Nz//2
+    p_0 = Nx // 2
+    q_0 = Ny // 2
+    r_0 = Nz // 2
 
     C = np.zeros((NH, NH), dtype=complex)
 
@@ -35,3 +36,4 @@ def convmat(A: np.ndarray, P: int = 1, Q: int = 1, R: int = 1):
 
                             C[row, col] = A[p_0 + p_fft, q_0 + q_fft,
                                             r_0 + r_fft]
+    return C
