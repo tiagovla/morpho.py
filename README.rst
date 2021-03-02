@@ -71,23 +71,23 @@ References:
 
  
 
-.. |PyPI License| image:: https://img.shields.io/pypi/l/pwe.py.svg
-  :target: https://pypi.python.org/pypi/pwe.py
+.. |PyPI License| image:: https://img.shields.io/pypi/l/morpho.py.svg
+  :target: https://pypi.python.org/pypi/morpho.py
 
-.. |PyPI PyVersions| image:: https://img.shields.io/pypi/pyversions/pwe.py.svg
-  :target: https://pypi.python.org/pypi/pwe.py
+.. |PyPI PyVersions| image:: https://img.shields.io/pypi/pyversions/morpho.py.svg
+  :target: https://pypi.python.org/pypi/morpho.py
 
-.. |PyPI Version| image:: https://img.shields.io/pypi/v/pwe.py.svg
-  :target: https://pypi.python.org/pypi/pwe.py
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/morpho.py.svg
+  :target: https://pypi.python.org/pypi/morpho.py
 
-.. |Build Status| image:: https://travis-ci.com/tiagovla/pwe.py.svg?branch=master
-  :target: https://travis-ci.com/tiagovla/pwe.py
+.. |Build Status| image:: https://travis-ci.com/tiagovla/morpho.py.svg?branch=master
+  :target: https://travis-ci.com/tiagovla/morpho.py
 
-.. |DeepSource| image:: https://deepsource.io/gh/tiagovla/pwe.py.svg/?label=active+issues
-  :target: https://deepsource.io/gh/tiagovla/pwe.py/?ref=repository-badge
+.. |DeepSource| image:: https://deepsource.io/gh/tiagovla/morpho.py.svg/?label=active+issues
+  :target: https://deepsource.io/gh/tiagovla/morpho.py/?ref=repository-badge
 
-.. |Codecov| image:: https://codecov.io/gh/tiagovla/pwe.py/branch/master/graph/badge.svg?token=QR1RMTPX0H
-  :target: https://codecov.io/gh/tiagovla/pwe.py
+.. |Codecov| image:: https://codecov.io/gh/tiagovla/morpho.py/branch/master/graph/badge.svg?token=QR1RMTPX0H
+  :target: https://codecov.io/gh/tiagovla/morpho.py
 
-.. |Documentation Status| image:: https://readthedocs.org/projects/pwe-py/badge/?version=latest
-  :target: https://pwe-py.readthedocs.io/en/latest/?badge=latest
+.. |Documentation Status| image:: https://readthedocs.org/projects/morpho-py/badge/?version=latest
+  :target: https://morpho-py.readthedocs.io/en/latest/?badge=latest
