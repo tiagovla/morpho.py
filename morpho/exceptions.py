@@ -1,0 +1,1 @@
+"""Implement morpho exceptions."""

@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath("../"))
 
 # -- Project information -----------------------------------------------------
 
-project = "pwe.py"
+project = "morpho.py"
 copyright = "2021, tiagovla"
 author = "tiagovla"
 

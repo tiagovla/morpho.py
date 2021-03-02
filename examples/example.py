@@ -1,7 +1,7 @@
 """3D example."""
-from pwe import BrillouinZonePath as BZPath
-from pwe import Geometry, Solver
-from pwe import SymmetryPoint as SPoint
+from morpho import BrillouinZonePath as BZPath
+from morpho import Geometry, Solver
+from morpho import SymmetryPoint as SPoint
 
 Nx, Ny, Nz = 128, 128, 128
 P, Q, R = 3, 3, 3

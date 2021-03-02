@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "pwe.py"
+name = "morpho.py"
 version = "0.0.1"
 description = ""
 authors = ["Tiago Vilela <tiagovla@gmail.com>"]
 
 packages = [
-    {include = "pwe", from="."}
+    {include = "morpho", from="."}
 ]
 
 [tool.poetry.dependencies]
