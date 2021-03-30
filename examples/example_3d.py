@@ -3,7 +3,7 @@ from morpho import BrillouinZonePath as BZPath
 from morpho import Geometry, Solver
 from morpho import SymmetryPoint as SPoint
 
-Nx, Ny, Nz = 128, 128, 128
+N1, N2, N3 = 128, 128, 128
 P, Q, R = 3, 3, 3
 
 a = 1
@@ -24,11 +24,11 @@ t1, t2, t3 = (a, 0, 0), (0, a, 0), (0, 0, a)
 bz_path = BZPath([D, Z, G, Z, T, X], t1, t2, t3, 200)
 
 # Construct the geometry
-geo = Geometry(t1, t2, t3, Nx, Ny, Nz)
+geo = Geometry(t1, t2, t3, N1, N2, N3)
 
 
 # Define the permitivity profile
-@geo.set_epsr_f
+@geo.set_eps_rf
 def epsr_f():
     """Define eps_r profile function."""
     mask1 = (abs(geo.x) >= a/2 - w/2) & (abs(geo.y) >= a/2 - w/2)
@@ -38,7 +38,7 @@ def epsr_f():
 
 
 # Define the permeability profile
-@geo.set_mur_f
+@geo.set_mu_rf
 def mur_f():
     """Define mu_r profile function."""
 

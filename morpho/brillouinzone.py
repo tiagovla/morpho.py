@@ -7,7 +7,15 @@ from numpy.linalg import norm
 
 
 class SymmetryPoint:
-    """Model of a symmetry point at the brillouinzone."""
+    """Model of a symmetry point at the brillouinzone.
+
+    Parameters
+    ----------
+    point : Tuple[float, ...]
+        A point in the reciprocal domain.
+    name : str
+        A label to describe the point.
+    """
 
     def __init__(self, point: Tuple[float, ...], name: str):
         """Initialize a SymmetryPoint."""
@@ -16,7 +24,21 @@ class SymmetryPoint:
 
 
 class BrillouinZonePath:
-    """Model of a path at the brillouinzone."""
+    """Model of a path at the brillouinzone.
+
+    Parameters
+    ----------
+    path : List[SymmetryPoint]
+        A List of symmetry points.
+    t1 : Tuple[float, ...]
+        Direct vector t1. Ex: (0.5, 0.5, 0.5) | (0.5, 0.5) | (0.5,)
+    t2 : Optional[Tuple[float, ...]]
+        Direct vector t2. Ex: (0.5, 0.5, 0.5) | (0.5, 0.5)
+    t3 : Optional[Tuple[float, ...]]
+        Direct vector t3. Ex: (0.5, 0.5, 0.5)
+    n_points : int
+        Number of points in the path.
+    """
 
     def __init__(
         self,
@@ -24,7 +46,7 @@ class BrillouinZonePath:
         t1: Tuple[float, ...],
         t2: Optional[Tuple[float, ...]] = None,
         t3: Optional[Tuple[float, ...]] = None,
-        n_points: int = 5,
+        n_points: int = 50,
     ):
         """Initialize a BrillouinZonePath."""
         self.path_points = path
@@ -53,32 +75,32 @@ class BrillouinZonePath:
 
     @property
     def t1(self):
-        """Return vector t1."""
+        """Return the direct vector t1."""
         return self._t1[:self.dim]
 
     @property
     def t2(self):
-        """Return vector t2."""
+        """Return the direct vector t2."""
         return self._t2[:self.dim]
 
     @property
     def t3(self):
-        """Return vector t3."""
+        """Return the direct vector t3."""
         return self._t3[:self.dim]
 
     @property
     def T1(self):
-        """Return vector T1."""
+        """Return the reciprocal vector T1."""
         return self._T1[:self.dim]
 
     @property
     def T2(self):
-        """Return vector T2."""
+        """Return the reciprocal vector T2."""
         return self._T2[:self.dim]
 
     @property
     def T3(self):
-        """Return vector T3."""
+        """Return the reciprocal vector T3."""
         return self._T3[:self.dim]
 
     def _calculate_beta(self):

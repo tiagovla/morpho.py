@@ -4,17 +4,13 @@
    contain the root `toctree` directive.
 
 Welcome to morpho.py's documentation!
-==================================
+======================================
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
+   quickstart
+   introduction
+   api
+   references
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
