@@ -138,7 +138,6 @@ class Geometry2D(GeometryBase):
     @property
     def X(self) -> NamedTuple:
         """Return cartesian positions."""
-
         X = namedtuple('CartesianVectors2D', ['x', 'y'])
 
         P0, Q0 = np.meshgrid(
