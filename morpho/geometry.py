@@ -190,21 +190,6 @@ class Geometry3D(GeometryBase):
         self._mu_r: np.ndarray = np.ones((n1, n2, n3), dtype=complex)
 
     @property
-    def b1(self) -> np.ndarray:
-        return (2 * np.pi * np.cross(self.a2, self.a3) /
-                np.dot(self.a1, np.cross(self.a2, self.a3)))
-
-    @property
-    def b2(self) -> np.ndarray:
-        return (2 * np.pi * np.cross(self.a2, self.a3) /
-                np.dot(self.a1, np.cross(self.a2, self.a3)))
-
-    @property
-    def b3(self) -> np.ndarray:
-        return (2 * np.pi * np.cross(self.a2, self.a3) /
-                np.dot(self.a1, np.cross(self.a2, self.a3)))
-
-    @property
     def X(self) -> NamedTuple:
         X = namedtuple('CartesianVectors3D', ['x', 'y', 'z'])
 

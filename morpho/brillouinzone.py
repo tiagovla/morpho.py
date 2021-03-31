@@ -1,6 +1,8 @@
 """This module implements classes related to the brillouinzone."""
 
-from typing import List, Optional, Tuple
+from abc import ABC, abstractproperty
+from collections import namedtuple
+from typing import List, NamedTuple, Tuple
 
 import numpy as np
 from numpy.linalg import norm
@@ -23,110 +25,206 @@ class SymmetryPoint:
         self.name = name
 
 
-class BrillouinZonePath:
-    """Model of a path at the brillouinzone.
+class BrillouinZonePathBase(ABC):
+    """BrillouinZoneBase class."""
+
+    def __init__(self,
+                 path: List[SymmetryPoint],
+                 n_points: int = 50,
+                 strategy: str = 'linear'):
+        self.path_points = path
+        self.n_points = n_points
+        self.strat = strategy
+
+    @abstractproperty
+    def betas(self):
+        """Return bloch wave vectors."""
+
+
+class BrillouinZonePath1D(BrillouinZonePathBase):
+    """BrillouinZonePath1D.
 
     Parameters
     ----------
+    a1 : Tuple[float]
+        Direct lattice vector a1.
     path : List[SymmetryPoint]
-        A List of symmetry points.
-    t1 : Tuple[float, ...]
-        Direct vector t1. Ex: (0.5, 0.5, 0.5) | (0.5, 0.5) | (0.5,)
-    t2 : Optional[Tuple[float, ...]]
-        Direct vector t2. Ex: (0.5, 0.5, 0.5) | (0.5, 0.5)
-    t3 : Optional[Tuple[float, ...]]
-        Direct vector t3. Ex: (0.5, 0.5, 0.5)
+        List of symmetry points.
     n_points : int
-        Number of points in the path.
+        Number of vectors.
+    strategy : str = 'linear'
+        Strategy to interpolate.
     """
 
-    def __init__(
-        self,
-        path: List[SymmetryPoint],
-        t1: Tuple[float, ...],
-        t2: Optional[Tuple[float, ...]] = None,
-        t3: Optional[Tuple[float, ...]] = None,
-        n_points: int = 50,
-    ):
+    def __init__(self,
+                 a1: Tuple[float],
+                 path: List[SymmetryPoint],
+                 n_points: int = 50,
+                 strategy: str = 'linear'):
         """Initialize a BrillouinZonePath."""
-        self.path_points = path
-        self.n_points = n_points
-
-        self.dim = len(t1)
-
-        self._t1 = np.pad(np.array(t1), (0, 3 - len(t1)), "constant")
-        self._t2 = (np.pad(np.array(t2), (0, 3 - len(t2)), "constant")
-                    if t2 else np.array([0, 1, 0]))
-        self._t3 = (np.pad(np.array(t3), (0, 3 - len(t1)), "constant")
-                    if t3 else np.array([0, 0, 1]))
-
-        self._T1 = (2 * np.pi * np.cross(self._t2, self._t3) /
-                    np.dot(self._t1, np.cross(self._t2, self._t3)))
-        self._T2 = (2 * np.pi * np.cross(self._t3, self._t1) /
-                    np.dot(self._t1, np.cross(self._t2, self._t3)))
-        self._T3 = (2 * np.pi * np.cross(self._t1, self._t2) /
-                    np.dot(self._t1, np.cross(self._t2, self._t3)))
-
-        self.beta_vec = None
-        self.beta_vec_len = None
-        self.symmetry_names = None
-        self.symmetry_locations = None
-        self._calculate_beta()
+        super().__init__(path, n_points, strategy)
+        self.a1 = np.array(a1)
+        self.dim = 3
 
     @property
-    def t1(self):
-        """Return the direct vector t1."""
-        return self._t1[:self.dim]
+    def _path(self) -> np.ndarray:
+        path = np.stack([p.point for p in self.path_points], axis=1)
+        return path[0, :] * self.b1[:, None]
 
     @property
-    def t2(self):
-        """Return the direct vector t2."""
-        return self._t2[:self.dim]
+    def betas(self) -> NamedTuple:
+        beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
+        beta_cs = np.pad(beta_cs, (1, 0), "constant")
+        if self.strat == 'linear':
+            return __interpolate_beta(beta_cs, self._path, self.n_points)
+        else:
+            raise NotImplementedError
 
     @property
-    def t3(self):
-        """Return the direct vector t3."""
-        return self._t3[:self.dim]
+    def b1(self) -> np.ndarray:
+        """Return reciprocal lattice vector b1."""
+        return 2 * np.pi / self.a1
+
+
+class BrillouinZonePath2D(BrillouinZonePathBase):
+    """BrillouinZonePath2D.
+
+    Parameters
+    ----------
+    a1 : Tuple[float, float]
+        Direct lattice vector a1.
+    a2 : Tuple[float, float]
+        Direct lattice vector a2.
+    path : List[SymmetryPoint]
+        List of symmetry points.
+    n_points : int
+        Number of vectors.
+    strategy : str = 'linear'
+        Strategy to interpolate.
+    """
+
+    def __init__(self,
+                 a1: Tuple[float, float],
+                 a2: Tuple[float, float],
+                 path: List[SymmetryPoint],
+                 n_points: int = 50,
+                 strategy: str = 'linear'):
+        """Initialize a BrillouinZonePath."""
+        super().__init__(path, n_points, strategy)
+        self.a1 = np.array(a1)
+        self.a2 = np.array(a2)
+        self.dim = 3
 
     @property
-    def T1(self):
-        """Return the reciprocal vector T1."""
-        return self._T1[:self.dim]
+    def _path(self) -> np.ndarray:
+        path = np.stack([p.point for p in self.path_points], axis=1)
+        return (path[0, :] * self.b1[:, None] + path[1, :] * self.b2[:, None])
 
     @property
-    def T2(self):
-        """Return the reciprocal vector T2."""
-        return self._T2[:self.dim]
+    def betas(self) -> NamedTuple:
+        beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
+        beta_cs = np.pad(beta_cs, (1, 0), "constant")
+        if self.strat == 'linear':
+            return __interpolate_beta(beta_cs, self._path, self.n_points)
+        else:
+            raise NotImplementedError
 
     @property
-    def T3(self):
-        """Return the reciprocal vector T3."""
-        return self._T3[:self.dim]
+    def b1(self) -> np.ndarray:
+        """Return reciprocal lattice vector b1."""
+        Q = np.array([[0, -1], [1, 0]])
+        return (2 * np.pi * Q @ self.a2 / np.dot(self.a1, Q @ self.a2))
 
-    def _calculate_beta(self):
-        beta_path = np.stack(
-            [
-                np.pad(p.point, (0, 3 - len(p.point)), "constant")
-                for p in self.path_points
-            ],
-            axis=1,
-        )
-        beta_path = (beta_path[0, :] * self._T1[:, None] +
-                     beta_path[1, :] * self._T2[:, None] +
-                     beta_path[2, :] * self._T3[:, None])
+    @property
+    def b2(self) -> np.ndarray:
+        """Return reciprocal lattice vector b2."""
+        Q = np.array([[0, -1], [1, 0]])
+        return (2 * np.pi * Q @ self.a1 / np.dot(self.a2, Q @ self.a1))
 
-        beta_len = np.cumsum(
-            norm(np.diff(beta_path, axis=1)[:self.dim], axis=0))
-        beta_len = np.pad(beta_len, (1, 0), "constant")
-        beta_len_interp = np.linspace(0, beta_len[-1], self.n_points)
-        beta_ix = np.interp(beta_len_interp, beta_len,
-                            beta_path[0, :].flatten())
-        beta_iy = np.interp(beta_len_interp, beta_len,
-                            beta_path[1, :].flatten())
-        beta_iz = np.interp(beta_len_interp, beta_len,
-                            beta_path[2, :].flatten())
 
-        self.beta_vec = np.vstack((beta_ix, beta_iy, beta_iz))[:self.dim, :]
-        self.beta_vec_len = beta_len_interp
-        self.symmetry_names = [p.name for p in self.path_points]
-        self.symmetry_locations = beta_len
+class BrillouinZonePath3D(BrillouinZonePathBase):
+    """BrillouinZonePath3D.
+
+    Parameters
+    ----------
+    a1 : Tuple[float, float, float]
+        Direct lattice vector a1.
+    a2 : Tuple[float, float, float]
+        Direct lattice vector a2.
+    a3 : Tuple[float, float, float]
+        Direct lattice vector a3.
+    path : List[SymmetryPoint]
+        List of symmetry points.
+    n_points : int
+        Number of vectors.
+    strategy : str = 'linear'
+        Strategy to interpolate.
+    """
+
+    def __init__(self,
+                 a1: Tuple[float, float, float],
+                 a2: Tuple[float, float, float],
+                 a3: Tuple[float, float, float],
+                 path: List[SymmetryPoint],
+                 n_points: int = 50,
+                 strategy: str = 'interpolate'):
+        """Initialize a BrillouinZonePath."""
+        super().__init__(path, n_points, strategy)
+        self.a1 = np.array(a1)
+        self.a2 = np.array(a2)
+        self.a3 = np.array(a3)
+        self.dim = 3
+
+    @property
+    def _path(self) -> np.ndarray:
+        path = np.stack([p.point for p in self.path_points], axis=1)
+        return (path[0, :] * self.b1[:, None] + path[1, :] * self.b2[:, None] +
+                path[2, :] * self.b3[:, None])
+
+    @property
+    def betas(self) -> NamedTuple:
+        beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
+        beta_cs = np.pad(beta_cs, (1, 0), "constant")
+        if self.strat == 'interpolate':
+            return __interpolate_beta(beta_cs, self._path, self.n_points)
+        else:
+            raise NotImplementedError
+
+    @property
+    def b1(self) -> np.ndarray:
+        """Return reciprocal lattice vector b1."""
+        return (2 * np.pi * np.cross(self.a2, self.a3) /
+                np.dot(self.a1, np.cross(self.a2, self.a3)))
+
+    @property
+    def b2(self) -> np.ndarray:
+        """Return reciprocal lattice vector b2."""
+        return (2 * np.pi * np.cross(self.a3, self.a1) /
+                np.dot(self.a1, np.cross(self.a2, self.a3)))
+
+    @property
+    def b3(self) -> np.ndarray:
+        """Return reciprocal lattice vector b3."""
+        return (2 * np.pi * np.cross(self.a1, self.a2) /
+                np.dot(self.a1, np.cross(self.a2, self.a3)))
+
+
+def __interpolate_beta(beta_cs, path, n_points):
+    """Perform linear interpolation."""
+    beta_csi = np.linspace(0, beta_cs[-1], n_points)
+    beta_vi = np.vstack([
+        np.interp(beta_csi, beta_cs, path[i, :]).flatten()
+        for i in range(path.shape[0])
+    ])
+    I = namedtuple('InterpolatedBeta', ['values', 'cumsum'])
+    return I(beta_vi, beta_csi)
+
+
+def BrillouinZonePath(*args, **kwargs):
+    """BrillouinZonePath factory."""
+    dim_obj = {
+        1: BrillouinZonePath1D,
+        2: BrillouinZonePath2D,
+        3: BrillouinZonePath3D
+    }
+    return dim_obj[len(args[0])](*args, **kwargs)
