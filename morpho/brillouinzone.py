@@ -40,6 +40,17 @@ class BrillouinZonePathBase(ABC):
     def betas(self):
         """Return bloch wave vectors."""
 
+    @staticmethod
+    def _interpolate_beta(beta_cs, path, n_points):
+        """Perform linear interpolation."""
+        beta_csi = np.linspace(0, beta_cs[-1], n_points)
+        beta_vi = np.vstack([
+            np.interp(beta_csi, beta_cs, path[i, :]).flatten()
+            for i in range(path.shape[0])
+        ])
+        Interp = namedtuple('InterpolatedBeta', ['values', 'cumsum'])
+        return Interp(beta_vi, beta_csi)
+
 
 class BrillouinZonePath1D(BrillouinZonePathBase):
     """BrillouinZonePath1D.
@@ -78,7 +89,7 @@ class BrillouinZonePath1D(BrillouinZonePathBase):
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
         if self.strat == 'linear':
-            return __interpolate_beta(beta_cs, self._path, self.n_points)
+            return self._interpolate_beta(beta_cs, self._path, self.n_points)
         raise NotImplementedError
 
     @property
@@ -128,7 +139,7 @@ class BrillouinZonePath2D(BrillouinZonePathBase):
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
         if self.strat == 'linear':
-            return __interpolate_beta(beta_cs, self._path, self.n_points)
+            return self._interpolate_beta(beta_cs, self._path, self.n_points)
         raise NotImplementedError
 
     @property
@@ -190,7 +201,7 @@ class BrillouinZonePath3D(BrillouinZonePathBase):
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
         if self.strat == 'interpolate':
-            return __interpolate_beta(beta_cs, self._path, self.n_points)
+            return self._interpolate_beta(beta_cs, self._path, self.n_points)
         raise NotImplementedError
 
     @property
@@ -210,17 +221,6 @@ class BrillouinZonePath3D(BrillouinZonePathBase):
         """Return reciprocal lattice vector b3."""
         return (2 * np.pi * np.cross(self.a1, self.a2) /
                 np.dot(self.a1, np.cross(self.a2, self.a3)))
-
-
-def __interpolate_beta(beta_cs, path, n_points):
-    """Perform linear interpolation."""
-    beta_csi = np.linspace(0, beta_cs[-1], n_points)
-    beta_vi = np.vstack([
-        np.interp(beta_csi, beta_cs, path[i, :]).flatten()
-        for i in range(path.shape[0])
-    ])
-    Interp = namedtuple('InterpolatedBeta', ['values', 'cumsum'])
-    return Interp(beta_vi, beta_csi)
 
 
 def BrillouinZonePath(*args, **kwargs):
