@@ -18,12 +18,14 @@ class GeometryBase(ABC):
 
     @property
     def eps_r(self) -> np.ndarray:
+        """Return the relative permittivity matrice."""
         if self.eps_rf:
             self.eps_rf()
         return self._eps_r
 
     @property
     def mu_r(self) -> np.ndarray:
+        """Return the relative permeabillity matrice."""
         if self.mu_rf:
             self.mu_rf()
         return self._mu_r
@@ -92,6 +94,7 @@ class Geometry1D(GeometryBase):
 
     @property
     def X(self) -> NamedTuple:
+        """Return cartesian positions."""
         X = namedtuple('CartesianVectors1D', ['x'])
         P0 = np.linspace(-0.5, 0.5, self.n1)
         x = P0 * self.a1[0]
@@ -134,6 +137,8 @@ class Geometry2D(GeometryBase):
 
     @property
     def X(self) -> NamedTuple:
+        """Return cartesian positions."""
+
         X = namedtuple('CartesianVectors2D', ['x', 'y'])
 
         P0, Q0 = np.meshgrid(
@@ -191,6 +196,7 @@ class Geometry3D(GeometryBase):
 
     @property
     def X(self) -> NamedTuple:
+        """Return cartesian positions."""
         X = namedtuple('CartesianVectors3D', ['x', 'y', 'z'])
 
         P0, Q0, R0 = np.meshgrid(

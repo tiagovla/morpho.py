@@ -219,8 +219,8 @@ def __interpolate_beta(beta_cs, path, n_points):
         np.interp(beta_csi, beta_cs, path[i, :]).flatten()
         for i in range(path.shape[0])
     ])
-    I = namedtuple('InterpolatedBeta', ['values', 'cumsum'])
-    return I(beta_vi, beta_csi)
+    Interp = namedtuple('InterpolatedBeta', ['values', 'cumsum'])
+    return Interp(beta_vi, beta_csi)
 
 
 def BrillouinZonePath(*args, **kwargs):
