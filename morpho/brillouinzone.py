@@ -68,17 +68,18 @@ class BrillouinZonePath1D(BrillouinZonePathBase):
 
     @property
     def _path(self) -> np.ndarray:
+        """Return the path matrix."""
         path = np.stack([p.point for p in self.path_points], axis=1)
         return path[0, :] * self.b1[:, None]
 
     @property
     def betas(self) -> NamedTuple:
+        """Return beta vector values and cumsum."""
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
         if self.strat == 'linear':
             return __interpolate_beta(beta_cs, self._path, self.n_points)
-        else:
-            raise NotImplementedError
+        raise NotImplementedError
 
     @property
     def b1(self) -> np.ndarray:
@@ -117,29 +118,30 @@ class BrillouinZonePath2D(BrillouinZonePathBase):
 
     @property
     def _path(self) -> np.ndarray:
+        """Return the path matrix."""
         path = np.stack([p.point for p in self.path_points], axis=1)
         return (path[0, :] * self.b1[:, None] + path[1, :] * self.b2[:, None])
 
     @property
     def betas(self) -> NamedTuple:
+        """Return beta vector values and cumsum."""
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
         if self.strat == 'linear':
             return __interpolate_beta(beta_cs, self._path, self.n_points)
-        else:
-            raise NotImplementedError
+        raise NotImplementedError
 
     @property
     def b1(self) -> np.ndarray:
         """Return reciprocal lattice vector b1."""
         Q = np.array([[0, -1], [1, 0]])
-        return (2 * np.pi * Q @ self.a2 / np.dot(self.a1, Q @ self.a2))
+        return 2 * np.pi * Q @ self.a2 / np.dot(self.a1, Q @ self.a2)
 
     @property
     def b2(self) -> np.ndarray:
         """Return reciprocal lattice vector b2."""
         Q = np.array([[0, -1], [1, 0]])
-        return (2 * np.pi * Q @ self.a1 / np.dot(self.a2, Q @ self.a1))
+        return 2 * np.pi * Q @ self.a1 / np.dot(self.a2, Q @ self.a1)
 
 
 class BrillouinZonePath3D(BrillouinZonePathBase):
@@ -177,18 +179,19 @@ class BrillouinZonePath3D(BrillouinZonePathBase):
 
     @property
     def _path(self) -> np.ndarray:
+        """Return the path matrix."""
         path = np.stack([p.point for p in self.path_points], axis=1)
         return (path[0, :] * self.b1[:, None] + path[1, :] * self.b2[:, None] +
                 path[2, :] * self.b3[:, None])
 
     @property
     def betas(self) -> NamedTuple:
+        """Return beta vector values and cumsum."""
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
         if self.strat == 'interpolate':
             return __interpolate_beta(beta_cs, self._path, self.n_points)
-        else:
-            raise NotImplementedError
+        raise NotImplementedError
 
     @property
     def b1(self) -> np.ndarray:
