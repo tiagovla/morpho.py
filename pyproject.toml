@@ -2,6 +2,7 @@
 name = "morpho.py"
 version = "0.0.4"
 description = ""
+license = "MIT"
 authors = ["Tiago Vilela <tiagovla@gmail.com>"]
 
 packages = [
