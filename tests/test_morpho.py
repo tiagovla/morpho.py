@@ -2,4 +2,5 @@ from morpho import __version__
 
 
 def test_version():
-    assert __version__ == "0.0.3"
+    """Test the version."""
+    assert __version__ == "0.0.4"

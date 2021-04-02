@@ -17,6 +17,7 @@ def convmat(A: np.ndarray, P: int = 1, Q: int = 1, R: int = 1):
         Number of terms in the direction of the reciprocal vector T3.
     """
     NH = P * Q * R
+    A = np.atleast_3d(A)
     N1, N2, N3 = A.shape
 
     p = np.arange(-(P // 2), P//2 + 1)
