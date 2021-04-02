@@ -5,10 +5,10 @@ from typing import List, Union
 import numpy as np
 from scipy.linalg import eigh
 
-from .brillouinzone import BrillouinZonePath3D as BZPath1D
+from .brillouinzone import BrillouinZonePath1D as BZPath1D
 from .brillouinzone import BrillouinZonePath2D as BZPath2D
 from .brillouinzone import BrillouinZonePath3D as BZPath3D
-from .geometry import Geometry2D, Geometry3D, Geometry1D
+from .geometry import Geometry1D, Geometry2D, Geometry3D
 from .utils import convmat
 
 
@@ -24,6 +24,7 @@ class Solver1D:
     P : int
         Number of terms in the direction of the reciprocal vector b1.
     """
+
     def __init__(self,
                  geometry: Geometry1D,
                  path: BZPath1D,
@@ -32,7 +33,7 @@ class Solver1D:
         """Initialize the PWE Solver."""
         self.geo = geometry
         self.path = path
-        self.P  = P
+        self.P = P
         self.pol = pol
 
         self.eps_rc: np.ndarray
@@ -43,6 +44,7 @@ class Solver1D:
     def run(self):
         """Calculate the eigen-wavenumbers and modes."""
         raise NotImplementedError
+
 
 class Solver2D:
     """Implement a 2D PWE Solver.

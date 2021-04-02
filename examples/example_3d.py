@@ -1,4 +1,4 @@
-"""2D example."""
+"""3D example."""
 import matplotlib.pyplot as plt
 import numpy as np
 
