@@ -103,7 +103,6 @@ class Geometry2D(GeometryBase):
     @property
     def X(self) -> CartesianVectors2D:
         """Return cartesian positions."""
-
         P0, Q0 = np.meshgrid(
             np.linspace(-0.5, 0.5, self.n1),
             np.linspace(-0.5, 0.5, self.n2),
@@ -174,7 +173,6 @@ class Geometry3D(GeometryBase):
     @property
     def X(self) -> CartesianVectors3D:
         """Return cartesian positions."""
-
         P0, Q0, R0 = np.meshgrid(
             np.linspace(-0.5, 0.5, self.n1),
             np.linspace(-0.5, 0.5, self.n2),

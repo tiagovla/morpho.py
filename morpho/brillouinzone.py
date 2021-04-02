@@ -11,6 +11,7 @@ from numpy.linalg import norm
 @dataclass
 class BlochVectors:
     """Represents a data structure of Bloch wave vectors."""
+
     values: np.ndarray
     cumsum: np.ndarray
 
