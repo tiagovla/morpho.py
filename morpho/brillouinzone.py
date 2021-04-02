@@ -1,11 +1,18 @@
 """This module implements classes related to the brillouinzone."""
 
 from abc import ABC, abstractproperty
-from collections import namedtuple
-from typing import List, NamedTuple, Tuple
+from dataclasses import dataclass
+from typing import List, Tuple
 
 import numpy as np
 from numpy.linalg import norm
+
+
+@dataclass
+class BlochVectors:
+    """Represents a data structure of Bloch wave vectors."""
+    values: np.ndarray
+    cumsum: np.ndarray
 
 
 class SymmetryPoint:
@@ -35,9 +42,10 @@ class BrillouinZonePathBase(ABC):
         self.path_points = path
         self.n_points = n_points
         self.strat = strategy
+        self._path: np.ndarray
 
     @abstractproperty
-    def betas(self):
+    def betas(self) -> BlochVectors:
         """Return bloch wave vectors."""
 
     @staticmethod
@@ -48,8 +56,15 @@ class BrillouinZonePathBase(ABC):
             np.interp(beta_csi, beta_cs, path[i, :]).flatten()
             for i in range(path.shape[0])
         ])
-        Interp = namedtuple('InterpolatedBeta', ['values', 'cumsum'])
-        return Interp(beta_vi, beta_csi)
+        return BlochVectors(beta_vi, beta_csi)
+
+    @property
+    def point_locations(self):
+        return np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
+
+    @property
+    def point_names(self):
+        return [p.name for p in self.path_points]
 
 
 class BrillouinZonePath1D(BrillouinZonePathBase):
@@ -75,7 +90,7 @@ class BrillouinZonePath1D(BrillouinZonePathBase):
         """Initialize a BrillouinZonePath."""
         super().__init__(path, n_points, strategy)
         self.a1 = np.array(a1)
-        self.dim = 3
+        self.dim = 1
 
     @property
     def _path(self) -> np.ndarray:
@@ -84,7 +99,7 @@ class BrillouinZonePath1D(BrillouinZonePathBase):
         return path[0, :] * self.b1[:, None]
 
     @property
-    def betas(self) -> NamedTuple:
+    def betas(self) -> BlochVectors:
         """Return beta vector values and cumsum."""
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
@@ -125,7 +140,7 @@ class BrillouinZonePath2D(BrillouinZonePathBase):
         super().__init__(path, n_points, strategy)
         self.a1 = np.array(a1)
         self.a2 = np.array(a2)
-        self.dim = 3
+        self.dim = 2
 
     @property
     def _path(self) -> np.ndarray:
@@ -134,7 +149,7 @@ class BrillouinZonePath2D(BrillouinZonePathBase):
         return (path[0, :] * self.b1[:, None] + path[1, :] * self.b2[:, None])
 
     @property
-    def betas(self) -> NamedTuple:
+    def betas(self) -> BlochVectors:
         """Return beta vector values and cumsum."""
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
@@ -196,7 +211,7 @@ class BrillouinZonePath3D(BrillouinZonePathBase):
                 path[2, :] * self.b3[:, None])
 
     @property
-    def betas(self) -> NamedTuple:
+    def betas(self) -> BlochVectors:
         """Return beta vector values and cumsum."""
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")

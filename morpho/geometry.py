@@ -1,8 +1,9 @@
 """Implement photonic crystal geometries."""
 
+from __future__ import annotations
 from abc import ABC
-from collections import namedtuple
-from typing import Callable, NamedTuple, Optional, Tuple
+from typing import Callable, Optional, Tuple
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -15,42 +16,6 @@ class GeometryBase(ABC):
         self.mu_rf: Optional[Callable] = mu_rf or None
         self._eps_r: np.ndarray
         self._mu_r: np.ndarray
-
-    @property
-    def eps_r(self) -> np.ndarray:
-        """Return the relative permittivity matrice."""
-        if self.eps_rf:
-            self.eps_rf()
-        return self._eps_r
-
-    @property
-    def mu_r(self) -> np.ndarray:
-        """Return the relative permeabillity matrice."""
-        if self.mu_rf:
-            self.mu_rf()
-        return self._mu_r
-
-    def set_eps_rf(self, func: Callable):
-        """Set eps_r by a function decorator.
-
-        Parameters
-        ----------
-        func : Callable
-            func
-        """
-        self.eps_rf = func
-        return func
-
-    def set_mu_rf(self, func: Callable):
-        """Set mu_r by a function decorator.
-
-        Parameters
-        ----------
-        func : Callable
-            func
-        """
-        self.mu_rf = func
-        return func
 
     def overwrite(self, func: Callable):
         """Overwrite decorator.
@@ -82,7 +47,7 @@ class Geometry1D(GeometryBase):
     """
 
     def __init__(self,
-                 a1: Tuple[float, float],
+                 a1: Tuple[float],
                  n1: int = 64,
                  eps_rf: Optional[Callable] = None,
                  mu_rf: Optional[Callable] = None):
@@ -93,12 +58,11 @@ class Geometry1D(GeometryBase):
         self._mu_r: np.ndarray = np.ones((n1, ), dtype=complex)
 
     @property
-    def X(self) -> NamedTuple:
+    def X(self) -> CartesianVectors1D:
         """Return cartesian positions."""
-        X = namedtuple('CartesianVectors1D', ['x'])
         P0 = np.linspace(-0.5, 0.5, self.n1)
         x = P0 * self.a1[0]
-        return X(x)
+        return CartesianVectors1D(x)
 
 
 class Geometry2D(GeometryBase):
@@ -136,9 +100,8 @@ class Geometry2D(GeometryBase):
         self._mu_r: np.ndarray = np.ones((n1, n2), dtype=complex)
 
     @property
-    def X(self) -> NamedTuple:
+    def X(self) -> CartesianVectors2D:
         """Return cartesian positions."""
-        X = namedtuple('CartesianVectors2D', ['x', 'y'])
 
         P0, Q0 = np.meshgrid(
             np.linspace(-0.5, 0.5, self.n1),
@@ -148,7 +111,21 @@ class Geometry2D(GeometryBase):
         x = P0 * self.a1[0] + Q0 * self.a2[0]
         y = P0 * self.a1[1] + Q0 * self.a2[1]
 
-        return X(x, y)
+        return CartesianVectors2D(x, y)
+
+    @property
+    def eps_r(self) -> np.ndarray:
+        """Return the relative permittivity matrice."""
+        if self.eps_rf:
+            self.eps_rf(eps_r=self._eps_r, x=self.X.x, y=self.X.y)
+        return self._eps_r
+
+    @property
+    def mu_r(self) -> np.ndarray:
+        """Return the relative permeabillity matrice."""
+        if self.mu_rf:
+            self.mu_rf(eps_r=self._eps_r, x=self.X.x, y=self.X.y)
+        return self._mu_r
 
 
 class Geometry3D(GeometryBase):
@@ -194,9 +171,8 @@ class Geometry3D(GeometryBase):
         self._mu_r: np.ndarray = np.ones((n1, n2, n3), dtype=complex)
 
     @property
-    def X(self) -> NamedTuple:
+    def X(self) -> CartesianVectors3D:
         """Return cartesian positions."""
-        X = namedtuple('CartesianVectors3D', ['x', 'y', 'z'])
 
         P0, Q0, R0 = np.meshgrid(
             np.linspace(-0.5, 0.5, self.n1),
@@ -208,10 +184,42 @@ class Geometry3D(GeometryBase):
         y = P0 * self.a1[1] + Q0 * self.a2[1] + R0 * self.a3[1]
         z = P0 * self.a1[2] + Q0 * self.a2[2] + R0 * self.a3[2]
 
-        return X(x, y, z)
+        return CartesianVectors3D(x, y, z)
+
+    @property
+    def eps_r(self) -> np.ndarray:
+        """Return the relative permittivity matrice."""
+        if self.eps_rf:
+            self.eps_rf(eps_r=self._eps_r, x=self.X.x, y=self.X.y, z=self.X.z)
+        return self._eps_r
+
+    @property
+    def mu_r(self) -> np.ndarray:
+        """Return the relative permeabillity matrice."""
+        if self.mu_rf:
+            self.mu_rf(eps_r=self._eps_r, x=self.X.x, y=self.X.y, z=self.X.z)
+        return self._mu_r
 
 
 def Geometry(*args, **kwargs):
     """Geometry factory."""
     dim_obj = {1: Geometry1D, 2: Geometry2D, 3: Geometry3D}
     return dim_obj[len(args[0])](*args, **kwargs)
+
+@dataclass
+class CartesianVectors1D:
+    """Represent a data structure of cartesian coordinates."""
+    x: np.ndarray 
+
+@dataclass
+class CartesianVectors2D:
+    """Represent a data structure of cartesian coordinates."""
+    x: np.ndarray 
+    y: np.ndarray
+
+@dataclass
+class CartesianVectors3D:
+    """Represent a data structure of cartesian coordinates."""
+    x: np.ndarray 
+    y: np.ndarray
+    z: np.ndarray
