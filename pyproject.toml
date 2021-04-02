@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "morpho.py"
-version = "0.0.3"
+version = "0.0.4"
 description = ""
 authors = ["Tiago Vilela <tiagovla@gmail.com>"]
 

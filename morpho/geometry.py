@@ -1,9 +1,10 @@
 """Implement photonic crystal geometries."""
 
 from __future__ import annotations
+
 from abc import ABC
-from typing import Callable, Optional, Tuple
 from dataclasses import dataclass
+from typing import Callable, Optional, Tuple
 
 import numpy as np
 
@@ -206,20 +207,26 @@ def Geometry(*args, **kwargs):
     dim_obj = {1: Geometry1D, 2: Geometry2D, 3: Geometry3D}
     return dim_obj[len(args[0])](*args, **kwargs)
 
+
 @dataclass
 class CartesianVectors1D:
     """Represent a data structure of cartesian coordinates."""
-    x: np.ndarray 
+
+    x: np.ndarray
+
 
 @dataclass
 class CartesianVectors2D:
     """Represent a data structure of cartesian coordinates."""
-    x: np.ndarray 
+
+    x: np.ndarray
     y: np.ndarray
+
 
 @dataclass
 class CartesianVectors3D:
     """Represent a data structure of cartesian coordinates."""
-    x: np.ndarray 
+
+    x: np.ndarray
     y: np.ndarray
     z: np.ndarray

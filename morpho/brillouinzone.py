@@ -60,10 +60,12 @@ class BrillouinZonePathBase(ABC):
 
     @property
     def point_locations(self):
+        """Return cumulative sum of vectors' length."""
         return np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
 
     @property
     def point_names(self):
+        """Return list of symmetry point names."""
         return [p.name for p in self.path_points]
 
 
