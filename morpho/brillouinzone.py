@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractproperty
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 from numpy.linalg import norm
@@ -241,11 +241,13 @@ class BrillouinZonePath3D(BrillouinZonePathBase):
                 np.dot(self.a1, np.cross(self.a2, self.a3)))
 
 
-def BrillouinZonePath(*args, **kwargs):
+def BrillouinZonePath(
+    a1, *args, **kwargs
+) -> Union[BrillouinZonePath1D, BrillouinZonePath2D, BrillouinZonePath3D]:
     """BrillouinZonePath factory."""
     dim_obj = {
         1: BrillouinZonePath1D,
         2: BrillouinZonePath2D,
         3: BrillouinZonePath3D
     }
-    return dim_obj[len(args[0])](*args, **kwargs)
+    return dim_obj[len(a1)](a1, *args, **kwargs)

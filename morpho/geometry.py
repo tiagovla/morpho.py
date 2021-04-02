@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, Union
 
 import numpy as np
 
@@ -200,8 +200,21 @@ class Geometry3D(GeometryBase):
         return self._mu_r
 
 
-def Geometry(*args, **kwargs):
-    """Geometry factory."""
+def Geometry(*args, **kwargs) -> Union[Geometry1D, Geometry2D, Geometry3D]:
+    """Geometry factory.
+
+    Parameters
+    ----------
+    args :
+        args
+    kwargs :
+        kwargs
+
+    Returns
+    -------
+    Union[Geometry1D, Geometry2D, Geometry3D]
+
+    """
     dim_obj = {1: Geometry1D, 2: Geometry2D, 3: Geometry3D}
     return dim_obj[len(args[0])](*args, **kwargs)
 

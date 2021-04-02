@@ -1,4 +1,4 @@
-|PyPI License| |PyPI PyVersions| |PyPI Version| |Build Status| |DeepSource| |Codecov| |Documentation Status|
+|PyPI License| |PyPI PyVersions| |PyPI Version| |Build Status| |DeepSource| |Codecov| |Documentation Status| |DOI|
 
 ================
  PWE Framework for 3D/2D/1D Photonic Crystal Analysis
@@ -10,51 +10,75 @@ Quick examples:
 
 .. code-block:: python
 
-  """2D example."""
-  from morpho import BrillouinZonePath as BZPath
-  from morpho import Geometry, Solver2D
-  from morpho import SymmetryPoint as SPoint
+    """2D example."""
+    import matplotlib.pyplot as plt
+    import numpy as np
 
-  Nx, Ny = 64, 64
-  P, Q = 5, 5
-  a = 1
-  eps_r = 9.8
-  mu_r = 1.0
+    from morpho import BrillouinZonePath as BZPath
+    from morpho import Geometry, Solver
+    from morpho import SymmetryPoint as SPoint
 
-  # Define the symmetry points
-  G = SPoint((0, 0), "Γ")
-  X = SPoint((1 / 2, 0), "X")
-  M = SPoint((1 / 2, 1 / 2), "M")
+    # Input parameters
+    a = 1  # normalized lattice length
+    r = 0.2 * a  # cylinder radius
+    N1, N2 = 64, 64  # discretization
+    P, Q = 7, 7  # number of fourier terms
+    EPS_R = 9.8  # permittivity
+    MU_R = 1.0  # permeability
 
-  t1, t2, t3 = (a, 0, 0), (0, a, 0), (0, 0, a)
+    # Define the symmetry points
+    G = SPoint((0.0, 0.0), "Γ")
+    X = SPoint((0.5, 0.0), "X")
+    M = SPoint((0.5, 0.5), "M")
 
-  # Construct the bloch wave path
-  bz_path = BZPath([G, X, M, G], t1, t2, n_points=100)
+    # Lattice vectors
+    a1, a2 = (a, 0), (0, a)
 
-  # Construct the geometry
-  geo = Geometry(t1, t2, None, Nx, Ny, 1)
+    # Construct the bloch wave path
+    bz_path = BZPath(a1, a2, [G, X, M, G], n_points=100)
 
-
-  # Define the permitivity profile
-  @geo.set_epsr_f
-  def epsr_f():
-      """Define eps_r profile function."""
-      mask = geo.x**2 + geo.y**2 <= 0.2**2
-      geo.eps_r[mask] = eps_r
+    # Construct the geometry
+    geo = Geometry(a1, a2, N1, N2)
 
 
-  # Define the permeability profile
-  @geo.set_mur_f
-  def mur_f():
-      """Define mu_r profile function."""
+    # Define the permitivity profile
+    @geo.overwrite
+    def eps_rf(eps_r, x, y):
+        """Define eps_r profile function."""
+        mask = x**2 + y**2 <= 0.2**2
+        eps_r[mask] = EPS_R
 
 
-  # Solve
-  solver_tm = Solver2D(geometry=geo, path=bz_path, P=P, Q=Q, pol="TM")
-  solver_tm.run()
+    # Solve
+    solver_tm = Solver(geo, bz_path, P=P, Q=Q, pol="TM")
+    solver_te = Solver(geo, bz_path, P=P, Q=Q, pol="TE")
 
-  solver_te = Solver2D(geometry=geo, path=bz_path, P=P, Q=Q, pol="TE")
-  solver_te.run()
+    solver_tm.run()
+    solver_te.run()
+
+    # Results:
+    beta_len = bz_path.betas.cumsum
+    wn_tm = np.vstack(solver_tm.wn)
+    wn_te = np.vstack(solver_te.wn)
+
+    _, ax = plt.subplots(figsize=(5, 4))
+
+    ax.set_xticklabels(bz_path.point_names)
+    ax.set_xticks(bz_path.point_locations)
+    ax.set_xlim(0, bz_path.point_locations[-1])
+    ax.set_ylim(0, 0.8)
+    ax.set_xlabel(r"Bloch Wave Vector $k$")
+    ax.set_ylabel(r"Frequency ${\omega a}/{2\pi c}$")
+    ax.plot(beta_len, wn_tm * a / (2 * np.pi), "b-", label="TM")
+    ax.plot(beta_len, wn_te * a / (2 * np.pi), "r-", label="TE")
+    ax.grid(True)
+    handles, labels = ax.get_legend_handles_labels()
+    labels, ids = np.unique(labels, return_index=True)
+    handles = [handles[i] for i in ids]
+    ax.legend(handles, labels, loc="best")
+
+    plt.tight_layout()
+    plt.show()
 
 
 Results:
@@ -64,54 +88,69 @@ Results:
 
 .. code-block:: python
 
-  """3D example."""
-  from pwe import BrillouinZonePath as BZPath
-  from pwe import Geometry, Solver
-  from pwe import SymmetryPoint as SPoint
+    """3D example."""
+    import matplotlib.pyplot as plt
+    import numpy as np
 
-  Nx, Ny, Nz = 128, 128, 128
-  P, Q, R = 3, 3, 3
+    from morpho import BrillouinZonePath as BZPath
+    from morpho import Geometry, Solver
+    from morpho import SymmetryPoint as SPoint
 
-  a = 1
-  w = 0.2 * a
-  eps_r = 2.34
-  mu_r = 1.0
+    N1, N2, N3 = 64, 64, 64
+    P, Q, R = 3, 3, 3
 
-  # Define the symmetry points
-  G = SPoint((0, 0, 0), "Γ")
-  Z = SPoint((0, 0, 1 / 2), "Z")
-  X = SPoint((1 / 2, 0, 0), "X")
-  D = SPoint((1 / 2, 1 / 2, 1 / 2), "D")
-  T = SPoint((1 / 2, 0, 1 / 2), "T")
+    a = 1
+    w = 0.2 * a
+    EPS_R = 2.34
+    MU_R = 1.0
 
-  t1, t2, t3 = (a, 0, 0), (0, a, 0), (0, 0, a)
+    # Define the symmetry points
+    G = SPoint((0, 0, 0), "Γ")
+    Z = SPoint((0, 0, 1 / 2), "Z")
+    X = SPoint((1 / 2, 0, 0), "X")
+    D = SPoint((1 / 2, 1 / 2, 1 / 2), "D")
+    T = SPoint((1 / 2, 0, 1 / 2), "T")
 
-  # Construct the bloch wave path
-  bz_path = BZPath([D, Z, G, Z, T, X], t1, t2, t3, 200)
+    a1, a2, a3 = (a, 0, 0), (0, a, 0), (0, 0, a)
 
-  # Construct the geometry
-  geo = Geometry(t1, t2, t3, Nx, Ny, Nz)
+    # Construct the bloch wave path
+    bz_path = BZPath(a1, a2, a3, [D, Z, G, Z, T, X], 200)
 
-
-  # Define the permitivity profile
-  @geo.set_epsr_f
-  def epsr_f():
-      """Define eps_r profile function."""
-      mask1 = (abs(geo.x) >= a/2 - w/2) & (abs(geo.y) >= a/2 - w/2)
-      mask2 = (abs(geo.x) >= a/2 - w/2) & (abs(geo.z) >= a/2 - w/2)
-      mask3 = (abs(geo.y) >= a/2 - w/2) & (abs(geo.z) >= a/2 - w/2)
-      geo.eps_r[mask1 | mask2 | mask3] = eps_r
+    # Construct the geometry
+    geo = Geometry(a1, a2, a3, N1, N2, N3)
 
 
-  # Define the permeability profile
-  @geo.set_mur_f
-  def mur_f():
-      """Define mu_r profile function."""
+    # Define the permitivity profile
+    @geo.overwrite
+    def eps_rf(eps_r, x, y, z):
+        """Define eps_r profile function."""
+        mask1 = (abs(x) >= a/2 - w/2) & (abs(y) >= a/2 - w/2)
+        mask2 = (abs(x) >= a/2 - w/2) & (abs(z) >= a/2 - w/2)
+        mask3 = (abs(y) >= a/2 - w/2) & (abs(z) >= a/2 - w/2)
+        eps_r[mask1 | mask2 | mask3] = EPS_R
 
 
-  # Solve
-  solver = Solver(geometry=geo, path=bz_path, P=P, Q=Q, R=R)
-  solver.run()
+    # Solve
+    solver = Solver(geo, bz_path, P=P, Q=Q, R=R)
+    solver.run()
+
+    # Results:
+    beta_len = bz_path.betas.cumsum
+    wn = np.vstack(solver.wn)
+
+    _, ax = plt.subplots(figsize=(5, 4))
+
+    ax.set_xticklabels(bz_path.point_names)
+    ax.set_xticks(bz_path.point_locations)
+    ax.set_xlim(0, bz_path.point_locations[-1])
+    ax.set_ylim(0, 1.6)
+    ax.set_xlabel(r"Bloch Wave Vector $k$")
+    ax.set_ylabel(r"Frequency ${\omega a}/{2\pi c}$")
+    ax.plot(beta_len, wn * a / (2 * np.pi), "k-")
+    ax.grid(True)
+
+    plt.tight_layout()
+    plt.show()
 
 Results:
 **********
@@ -144,3 +183,6 @@ References:
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/morpho-py/badge/?version=latest
   :target: https://morpho-py.readthedocs.io/en/latest/?badge=latest
+
+.. |DOI| image:: https://zenodo.org/badge/341691173.svg
+   :target: https://zenodo.org/badge/latestdoi/341691173

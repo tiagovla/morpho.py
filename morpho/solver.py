@@ -1,13 +1,14 @@
 """Implement 3D/2D solvers."""
 
-from typing import List
+from typing import List, Union
 
 import numpy as np
 from scipy.linalg import eigh
 
+from .brillouinzone import BrillouinZonePath3D as BZPath1D
 from .brillouinzone import BrillouinZonePath2D as BZPath2D
 from .brillouinzone import BrillouinZonePath3D as BZPath3D
-from .geometry import Geometry2D, Geometry3D
+from .geometry import Geometry2D, Geometry3D, Geometry1D
 from .utils import convmat
 
 
@@ -23,7 +24,25 @@ class Solver1D:
     P : int
         Number of terms in the direction of the reciprocal vector b1.
     """
+    def __init__(self,
+                 geometry: Geometry1D,
+                 path: BZPath1D,
+                 P: int = 1,
+                 pol: str = "TM"):
+        """Initialize the PWE Solver."""
+        self.geo = geometry
+        self.path = path
+        self.P  = P
+        self.pol = pol
 
+        self.eps_rc: np.ndarray
+        self.mu_rc: np.ndarray
+        self.wn: List[np.ndarray] = []
+        self.modes: List[np.ndarray] = []
+
+    def run(self):
+        """Calculate the eigen-wavenumbers and modes."""
+        raise NotImplementedError
 
 class Solver2D:
     """Implement a 2D PWE Solver.
@@ -58,7 +77,7 @@ class Solver2D:
         self.modes: List[np.ndarray] = []
 
     def run(self):
-        """Run the simulation."""
+        """Calculate the eigen-wavenumbers and modes."""
         self.eps_rc = convmat(self.geo.eps_r, self.P, self.Q)
         self.mu_rc = convmat(self.geo.mu_r, self.P, self.Q)
 
@@ -107,7 +126,7 @@ class Solver3D:
     Q : int
         Number of terms in the direction of the reciprocal vector b2.
     R : int
-        Number of terms in the direction of the reciprocal vector T3.
+        Number of terms in the direction of the reciprocal vector b3.
     """
 
     def __init__(self,
@@ -165,7 +184,8 @@ class Solver3D:
             self.modes.append(V)
 
 
-def Solver(geometry, path, *args, **kwargs):
+def Solver(geometry, path, *args,
+           **kwargs) -> Union[Solver1D, Solver2D, Solver3D]:
     """Solver factory."""
     dim_obj = {1: Solver1D, 2: Solver2D, 3: Solver3D}
     return dim_obj[path.dim](geometry, path, *args, **kwargs)
