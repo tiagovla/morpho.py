@@ -25,11 +25,9 @@ class Solver1D:
         Number of terms in the direction of the reciprocal vector b1.
     """
 
-    def __init__(self,
-                 geometry: Geometry1D,
-                 path: BZPath1D,
-                 P: int = 1,
-                 pol: str = "TM"):
+    def __init__(
+        self, geometry: Geometry1D, path: BZPath1D, P: int = 1, pol: str = "TM"
+    ):
         """Initialize the PWE Solver."""
         self.geo = geometry
         self.path = path
@@ -61,12 +59,14 @@ class Solver2D:
         Number of terms in the direction of the reciprocal vector b2.
     """
 
-    def __init__(self,
-                 geometry: Geometry2D,
-                 path: BZPath2D,
-                 P: int = 1,
-                 Q: int = 1,
-                 pol: str = "TM"):
+    def __init__(
+        self,
+        geometry: Geometry2D,
+        path: BZPath2D,
+        P: int = 1,
+        Q: int = 1,
+        pol: str = "TM",
+    ):
         """Initialize the PWE Solver."""
         self.geo = geometry
         self.path = path
@@ -102,10 +102,10 @@ class Solver2D:
             KY = np.diag(k[1, :])
 
             if self.pol == "TM":
-                A = KX@mu_rci@KX + KY@mu_rci@KY
+                A = KX @ mu_rci @ KX + KY @ mu_rci @ KY
                 B = self.eps_rc
             else:
-                A = KX@eps_rci@KX + KY@eps_rci@KY
+                A = KX @ eps_rci @ KX + KY @ eps_rci @ KY
                 B = self.mu_rc
 
             D, V = eigh(A, B)
@@ -131,12 +131,9 @@ class Solver3D:
         Number of terms in the direction of the reciprocal vector b3.
     """
 
-    def __init__(self,
-                 geometry: Geometry3D,
-                 path: BZPath3D,
-                 P: int = 1,
-                 Q: int = 1,
-                 R: int = 1):
+    def __init__(
+        self, geometry: Geometry3D, path: BZPath3D, P: int = 1, Q: int = 1, R: int = 1
+    ):
         """Initialize the PWE Solver."""
         self.geo = geometry
         self.path = path
@@ -162,8 +159,11 @@ class Solver3D:
         P0, Q0, R0 = np.meshgrid(p, q, r)
         b1, b2, b3 = self.path.b1, self.path.b2, self.path.b3
 
-        G_k = (b1[:, None] * P0.flatten() + b2[:, None] * Q0.flatten() +
-               b3[:, None] * R0.flatten())
+        G_k = (
+            b1[:, None] * P0.flatten()
+            + b2[:, None] * Q0.flatten()
+            + b3[:, None] * R0.flatten()
+        )
 
         beta = self.path.betas.values
         for col in range(beta.shape[1]):
@@ -172,11 +172,13 @@ class Solver3D:
             KX = np.diag(k[0, :])
             KY = np.diag(k[1, :])
             KZ = np.diag(k[2, :])
-            K_V = np.vstack((
-                np.hstack((0 * KX, -KZ, KY)),
-                np.hstack((KZ, 0 * KY, -KX)),
-                np.hstack((-KY, KX, 0 * KZ)),
-            ))
+            K_V = np.vstack(
+                (
+                    np.hstack((0 * KX, -KZ, KY)),
+                    np.hstack((KZ, 0 * KY, -KX)),
+                    np.hstack((-KY, KX, 0 * KZ)),
+                )
+            )
             A = K_V @ mu_rki @ K_V
             B = eps_rk
 
@@ -186,8 +188,7 @@ class Solver3D:
             self.modes.append(V)
 
 
-def Solver(geometry, path, *args,
-           **kwargs) -> Union[Solver1D, Solver2D, Solver3D]:
+def Solver(geometry, path, *args, **kwargs) -> Union[Solver1D, Solver2D, Solver3D]:
     """Solver factory."""
     dim_obj = {1: Solver1D, 2: Solver2D, 3: Solver3D}
     return dim_obj[path.dim](geometry, path, *args, **kwargs)

@@ -9,9 +9,9 @@ from morpho import SymmetryPoint as SPoint
 # Input parameters
 a = 1  # normalized lattice length
 r = 0.2 * a  # cylinder radius
-N1, N2 = 64, 64  # discretization
+N1, N2 = 65, 65  # discretization
 P, Q = 7, 7  # number of fourier terms
-EPS_R = 9.8  # permittivity
+EPS_R = 8.9  # permittivity
 MU_R = 1.0  # permeability
 
 # Define the symmetry points
@@ -33,7 +33,7 @@ geo = Geometry(a1, a2, N1, N2)
 @geo.overwrite
 def eps_rf(eps_r, x, y):
     """Define eps_r profile function."""
-    mask = x**2 + y**2 <= 0.2**2
+    mask = x ** 2 + y ** 2 <= 0.2 ** 2
     eps_r[mask] = EPS_R
 
 

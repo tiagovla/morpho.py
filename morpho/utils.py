@@ -20,9 +20,9 @@ def convmat(A: np.ndarray, P: int = 1, Q: int = 1, R: int = 1):
     A = np.atleast_3d(A)
     N1, N2, N3 = A.shape
 
-    p = np.arange(-(P // 2), P//2 + 1)
-    q = np.arange(-(Q // 2), Q//2 + 1)
-    r = np.arange(-(R // 2), R//2 + 1)
+    p = np.arange(-(P // 2), P // 2 + 1)
+    q = np.arange(-(Q // 2), Q // 2 + 1)
+    r = np.arange(-(R // 2), R // 2 + 1)
 
     A = np.fft.fftshift(np.fft.fftn(A) / A.size)
 

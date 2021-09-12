@@ -26,7 +26,7 @@ class GeometryBase(ABC):
         func : Callable
             func
         """
-        if func.__name__ in ['eps_rf', 'mu_rf']:
+        if func.__name__ in ["eps_rf", "mu_rf"]:
             setattr(self, func.__name__, func)
         else:
             raise Exception("Can only overwrite eps_rf or mu_rf.")
@@ -47,16 +47,18 @@ class Geometry1D(GeometryBase):
         Permeabillity matrix mu_r if directly supplied.
     """
 
-    def __init__(self,
-                 a1: Tuple[float],
-                 n1: int = 64,
-                 eps_rf: Optional[Callable] = None,
-                 mu_rf: Optional[Callable] = None):
+    def __init__(
+        self,
+        a1: Tuple[float],
+        n1: int = 64,
+        eps_rf: Optional[Callable] = None,
+        mu_rf: Optional[Callable] = None,
+    ):
         super().__init__(eps_rf, mu_rf)
         self.a1: np.ndarray = np.array(a1)
         self.n1: int = n1
-        self._eps_r: np.ndarray = np.ones((n1, ), dtype=complex)
-        self._mu_r: np.ndarray = np.ones((n1, ), dtype=complex)
+        self._eps_r: np.ndarray = np.ones((n1,), dtype=complex)
+        self._mu_r: np.ndarray = np.ones((n1,), dtype=complex)
 
     @property
     def X(self) -> CartesianVectors1D:
@@ -85,13 +87,15 @@ class Geometry2D(GeometryBase):
         Permeabillity matrix mu_r if directly supplied.
     """
 
-    def __init__(self,
-                 a1: Tuple[float, float],
-                 a2: Tuple[float, float],
-                 n1: int = 64,
-                 n2: int = 64,
-                 eps_rf: Optional[Callable] = None,
-                 mu_rf: Optional[Callable] = None):
+    def __init__(
+        self,
+        a1: Tuple[float, float],
+        a2: Tuple[float, float],
+        n1: int = 64,
+        n2: int = 64,
+        eps_rf: Optional[Callable] = None,
+        mu_rf: Optional[Callable] = None,
+    ):
         super().__init__(eps_rf, mu_rf)
         self.a1: np.ndarray = np.array(a1)
         self.a2: np.ndarray = np.array(a2)
@@ -151,15 +155,17 @@ class Geometry3D(GeometryBase):
         Permeabillity matrix function mu_rf if directly supplied.
     """
 
-    def __init__(self,
-                 a1: Tuple[float, float, float],
-                 a2: Tuple[float, float, float],
-                 a3: Tuple[float, float, float],
-                 n1: int = 64,
-                 n2: int = 64,
-                 n3: int = 64,
-                 eps_rf: Optional[Callable] = None,
-                 mu_rf: Optional[Callable] = None):
+    def __init__(
+        self,
+        a1: Tuple[float, float, float],
+        a2: Tuple[float, float, float],
+        a3: Tuple[float, float, float],
+        n1: int = 64,
+        n2: int = 64,
+        n3: int = 64,
+        eps_rf: Optional[Callable] = None,
+        mu_rf: Optional[Callable] = None,
+    ):
         super().__init__(eps_rf, mu_rf)
         self.a1: np.ndarray = np.array(a1)
         self.a2: np.ndarray = np.array(a2)
