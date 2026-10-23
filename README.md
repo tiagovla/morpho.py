@@ -4,6 +4,7 @@
 [![Python 3.9-3.15](https://img.shields.io/badge/Python-3.9--3.15-3776AB?logo=python&logoColor=white)](https://pypi.org/project/morpho.py/)
 [![License](https://img.shields.io/github/license/tiagovla/morpho.py)](LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-online-brightgreen)](https://tiagovla.github.io/morpho.py)
+[![DOI](https://zenodo.org/badge/341691173.svg)](https://zenodo.org/badge/latestdoi/341691173)
 
 `morpho.py` computes photonic crystal band structures with the plane-wave
 expansion (PWE) method.
