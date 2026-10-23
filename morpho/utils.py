@@ -28,7 +28,13 @@ def convmat(A: np.ndarray, P: int = 1, Q: int = 1, R: int = 1):
         Number of terms in the direction of the reciprocal vector T3.
     """
     NH = P * Q * R
-    A = np.atleast_3d(A)
+    A = np.asarray(A)
+    if A.ndim == 1:
+        A = A[:, None, None]
+    elif A.ndim == 2:
+        A = A[:, :, None]
+    elif A.ndim != 3:
+        raise ValueError("A must have one, two, or three dimensions.")
     N1, N2, N3 = A.shape
 
     p = harmonic_indices(P)

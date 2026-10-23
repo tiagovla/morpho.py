@@ -67,6 +67,20 @@ class Geometry1D(GeometryBase):
         x = P0 * self.a1[0]
         return CartesianVectors1D(x)
 
+    @property
+    def eps_r(self) -> np.ndarray:
+        """Return the relative permittivity profile."""
+        if self.eps_rf:
+            self.eps_rf(eps_r=self._eps_r, x=self.X.x)
+        return self._eps_r
+
+    @property
+    def mu_r(self) -> np.ndarray:
+        """Return the relative permeability profile."""
+        if self.mu_rf:
+            self.mu_rf(self._mu_r, x=self.X.x)
+        return self._mu_r
+
 
 class Geometry2D(GeometryBase):
     """Geometry class.

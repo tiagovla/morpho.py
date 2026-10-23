@@ -41,7 +41,29 @@ class Solver1D:
 
     def run(self):
         """Calculate the eigen-wavenumbers and modes."""
-        raise NotImplementedError
+        self.eps_rc = convmat(self.geo.eps_r, self.P)
+        self.mu_rc = convmat(self.geo.mu_r, self.P)
+        mu_rci = convmat(1 / self.geo.mu_r, self.P)
+        eps_rci = convmat(1 / self.geo.eps_r, self.P)
+
+        p = harmonic_indices(self.P)
+        G_k = p * self.path.b1[0]
+        beta = self.path.betas.values
+
+        for col in range(beta.shape[1]):
+            k = beta[0, col] - G_k
+            KX = np.diag(k)
+
+            if self.pol == "TM":
+                A = KX @ mu_rci @ KX
+                B = self.eps_rc
+            else:
+                A = KX @ eps_rci @ KX
+                B = self.mu_rc
+
+            D, V = eigh(A, B)
+            self.wn.append(np.sqrt(np.maximum(D, 0)))
+            self.modes.append(V)
 
 
 class Solver2D:
