@@ -1,0 +1,51 @@
+site_name: morpho.py
+site_description: Plane-wave expansion for photonic crystal band structures
+
+hooks:
+  - docs/hooks.py
+
+nav:
+  - Home: index.md
+  - Quick start: quickstart.md
+  - API reference: api.md
+  - Examples: examples.md
+  - References: references.md
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: blue
+    accent: cyan
+  features:
+    - navigation.sections
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: ["."]
+          options:
+            docstring_style: numpy
+            docstring_section_style: list
+            members_order: source
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: false
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+  - toc:
+      permalink: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
