@@ -20,5 +20,4 @@
 <path d="M250 575 C355 305 435 790 540 605 S695 355 770 560" stroke="url(#wave)" stroke-width="43"/>
 <path d="M280 455 C365 245 435 665 535 485 S695 280 755 430" stroke="#a6f9ff" stroke-width="5" opacity=".8"/>
 </g></g>
-<text x="500" y="925" font-family="DejaVu Sans, sans-serif" font-size="116" font-weight="800" letter-spacing="-7" text-anchor="middle"><tspan fill="#071438">morpho</tspan><tspan fill="url(#py)">.py</tspan></text>
 </svg>
