@@ -83,8 +83,8 @@ class Solver2D:
         self.eps_rc = convmat(self.geo.eps_r, self.P, self.Q)
         self.mu_rc = convmat(self.geo.mu_r, self.P, self.Q)
 
-        mu_rci = np.linalg.inv(self.mu_rc)
-        eps_rci = np.linalg.inv(self.eps_rc)
+        mu_rci = convmat(1 / self.geo.mu_r, self.P, self.Q)
+        eps_rci = convmat(1 / self.geo.eps_r, self.P, self.Q)
 
         p = np.arange(-(self.P // 2), self.P // 2 + 1)
         q = np.arange(-(self.Q // 2), self.Q // 2 + 1)
@@ -150,7 +150,8 @@ class Solver3D:
         self.mu_rc = convmat(self.geo.mu_r, self.P, self.Q, self.R)
 
         eps_rk = np.kron(np.eye(3), self.eps_rc)
-        mu_rki = np.kron(np.eye(3), np.linalg.inv(self.mu_rc))
+        mu_ri = convmat(1 / self.geo.mu_r, self.P, self.Q, self.R)
+        mu_rki = np.kron(np.eye(3), mu_ri)
 
         p = np.arange(-(self.P // 2), self.P // 2 + 1)
         q = np.arange(-(self.Q // 2), self.Q // 2 + 1)
