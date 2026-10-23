@@ -185,8 +185,17 @@ class Solver3D:
 
             D, V = eigh(A, B)
 
-            self.wn.append(np.sqrt(-np.minimum(D, 0)))
-            self.modes.append(V)
+            # The curl-curl operator has one longitudinal null mode per
+            # retained reciprocal vector. Drop those N zero eigenvalues;
+            # at Gamma the two physical zero-frequency modes remain.
+            n_harmonics = KX.shape[0]
+            D = D[:-n_harmonics]
+            V = V[:, :-n_harmonics]
+
+            # eigh returns the negative eigenvalues from most negative to
+            # least negative, so reverse to report frequencies low to high.
+            self.wn.append(np.sqrt(np.maximum(-D, 0))[::-1])
+            self.modes.append(V[:, ::-1])
 
 
 def Solver(geometry, path, *args, **kwargs) -> Union[Solver1D, Solver2D, Solver3D]:
