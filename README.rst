@@ -157,6 +157,22 @@ Results:
 .. image:: docs/_static/bandgap_diagram_3d.png
   :width: 300
 
+Textbook benchmark:
+####################
+
+To reproduce the square lattice of dielectric columns from Chapter 5, Figure 2
+of *Photonic Crystals: Molding the Flow of Light*, run:
+
+.. code-block:: console
+
+    uv run python examples/book_ch5_fig2.py
+
+The script prints the first TM band gap-to-midgap ratio for comparison with the
+book's 31.4% value and saves the calculated band diagram below.
+
+.. image:: docs/_static/book_ch5_fig2_reproduction.png
+  :width: 500
+
 References:
 ###########
 [1] J. D. Joannopoulos, Ed., Photonic crystals: molding the flow of light, 2nd ed. Princeton: Princeton University Press, 2008.
