@@ -66,7 +66,9 @@ figure.tight_layout()
 plt.show()
 ```
 
-![TM and TE band structure for alumina rods on a square lattice](https://tiagovla.github.io/morpho.py/assets/square_lattice_dielectric_rods.png)
+<p align="center">
+  <img src="https://tiagovla.github.io/morpho.py/assets/square_lattice_dielectric_rods.png" alt="TM and TE band structure for alumina rods on a square lattice" width="720">
+</p>
 
 This reproduces the square-lattice example in Chapter 5, Figure 2 of
 [*Photonic Crystals: Molding the Flow of Light*](docs/references.md). Its TM
