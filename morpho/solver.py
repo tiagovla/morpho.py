@@ -118,10 +118,7 @@ class Solver2D:
         P0, Q0 = np.meshgrid(p, q, indexing="ij")
         b1, b2 = self.path.b1, self.path.b2
 
-        G_k = (
-            P0.ravel(order="F") * b1[:, None]
-            + Q0.ravel(order="F") * b2[:, None]
-        )
+        G_k = P0.ravel(order="F") * b1[:, None] + Q0.ravel(order="F") * b2[:, None]
         beta = self.path.betas.values
 
         for col in range(beta.shape[1]):

@@ -22,9 +22,7 @@ def main():
     Gamma = SPoint((0.0, 0.0), "Γ")
     M = SPoint((0.5, 0.0), "M")
     K = SPoint((1 / 3, 1 / 3), "K")
-    path = BZPath(
-        a1, a2, [Gamma, M, K, Gamma], points_per_segment=points_per_segment
-    )
+    path = BZPath(a1, a2, [Gamma, M, K, Gamma], points_per_segment=points_per_segment)
     geometry = Geometry(a1, a2, n_grid, n_grid)
 
     @geometry.overwrite
@@ -98,10 +96,7 @@ def main():
     print(f"TE band 1 maximum along Γ-M-K-Γ: {np.max(te[:, 0]):.6f}")
     print(f"TM band 3 minimum along Γ-M-K-Γ: {np.min(tm[:, 2]):.6f}")
     print(f"TE band 2 minimum along Γ-M-K-Γ: {np.min(te[:, 1]):.6f}")
-    print(
-        f"Complete gap-to-midgap ratio: {gap_ratio:.2f}% "
-        "(book reference: 18.6%)"
-    )
+    print(f"Complete gap-to-midgap ratio: {gap_ratio:.2f}% " "(book reference: 18.6%)")
     plt.show()
 
 

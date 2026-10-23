@@ -1,4 +1,5 @@
 """Test brillouinzone.py module."""
+
 import numpy as np
 import pytest
 from morpho.brillouinzone import BrillouinZonePath as BZPath

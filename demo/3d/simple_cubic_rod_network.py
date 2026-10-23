@@ -1,4 +1,5 @@
 """Band structure of a simple-cubic dielectric rod network (3D)."""
+
 import matplotlib.pyplot as plt
 import numpy as np
 

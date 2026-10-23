@@ -1,4 +1,5 @@
 """This module implements utilities."""
+
 import numpy as np
 
 

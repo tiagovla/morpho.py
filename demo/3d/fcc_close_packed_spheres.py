@@ -1,4 +1,5 @@
 """Band structure of close-packed dielectric spheres on an fcc lattice."""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -23,9 +24,7 @@ def main():
 
     @geometry.overwrite
     def eps_rf(eps_r, x, y, z):
-        sphere = periodic_sphere_mask(
-            x, y, z, (a1, a2, a3), radius, ((0.0, 0.0, 0.0),)
-        )
+        sphere = periodic_sphere_mask(x, y, z, (a1, a2, a3), radius, ((0.0, 0.0, 0.0),))
         eps_r[sphere] = eps_sphere
 
     solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, R=pwe_order)

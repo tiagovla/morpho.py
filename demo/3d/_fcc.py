@@ -41,8 +41,6 @@ def periodic_sphere_mask(x, y, z, lattice_vectors, radius, basis_offsets):
             center = translation + np.asarray(offset)
             distance_squared = np.minimum(
                 distance_squared,
-                (x - center[0]) ** 2
-                + (y - center[1]) ** 2
-                + (z - center[2]) ** 2,
+                (x - center[0]) ** 2 + (y - center[1]) ** 2 + (z - center[2]) ** 2,
             )
     return distance_squared <= radius**2

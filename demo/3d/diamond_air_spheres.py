@@ -1,4 +1,5 @@
 """Band structure and gap of air spheres on a diamond lattice (3D)."""
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -63,10 +64,7 @@ def main():
     print(f"Plane-wave cutoff: {pwe_order} x {pwe_order} x {pwe_order}")
     print(f"Second-band maximum on path: {lower_edge:.5f}")
     print(f"Third-band minimum on path: {upper_edge:.5f}")
-    print(
-        f"Gap-to-midgap ratio on path: {gap_ratio:.2f}% "
-        "(book reference: 29.6%)"
-    )
+    print(f"Gap-to-midgap ratio on path: {gap_ratio:.2f}% " "(book reference: 29.6%)")
     plt.show()
 
 
