@@ -156,13 +156,13 @@ class Solver3D:
         q = np.arange(-(self.Q // 2), self.Q // 2 + 1)
         r = np.arange(-(self.R // 2), self.R // 2 + 1)
 
-        P0, Q0, R0 = np.meshgrid(p, q, r)
+        P0, Q0, R0 = np.meshgrid(p, q, r, indexing="ij")
         b1, b2, b3 = self.path.b1, self.path.b2, self.path.b3
 
         G_k = (
-            b1[:, None] * P0.flatten()
-            + b2[:, None] * Q0.flatten()
-            + b3[:, None] * R0.flatten()
+            b1[:, None] * P0.ravel(order="F")
+            + b2[:, None] * Q0.ravel(order="F")
+            + b3[:, None] * R0.ravel(order="F")
         )
 
         beta = self.path.betas.values
