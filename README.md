@@ -1,8 +1,9 @@
-# morpho.py
+![morpho.py banner](docs/assets/banner.svg)
 
 [![PyPI version](https://img.shields.io/pypi/v/morpho.py)](https://pypi.org/project/morpho.py/)
 [![Python versions](https://img.shields.io/pypi/pyversions/morpho.py)](https://pypi.org/project/morpho.py/)
 [![License](https://img.shields.io/github/license/tiagovla/morpho.py)](LICENSE)
+[![Documentation](https://img.shields.io/badge/docs-online-brightgreen)](https://tiagovla.github.io/morpho.py)
 
 `morpho.py` computes photonic crystal band structures with the plane-wave
 expansion (PWE) method.
@@ -69,5 +70,6 @@ This reproduces the square-lattice example in Chapter 5, Figure 2 of
 [*Photonic Crystals: Molding the Flow of Light*](docs/references.md). Its TM
 gap-to-midgap ratio is about 31.45%, compared with 31.4% in the book.
 
-See the [examples documentation](docs/examples.md) for the other demos and
-their parameters, figures, and comparisons with the book where applicable.
+See the [examples documentation](https://tiagovla.github.io/morpho.py/examples/)
+for the other demos, their parameters, figures, and comparisons with the book
+where applicable.

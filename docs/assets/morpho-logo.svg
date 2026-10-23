@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-labelledby="title desc">
+<title id="title">morpho.py logo</title><desc id="desc">A stylized M made of photonic crystal rods and colorful electromagnetic waves.</desc>
+<defs>
+<linearGradient id="wave" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#16e6f4"/><stop offset=".48" stop-color="#2478ff"/><stop offset="1" stop-color="#b93aff"/></linearGradient>
+<linearGradient id="rod" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#12cffa"/><stop offset=".5" stop-color="#1958bb"/><stop offset="1" stop-color="#452087"/></linearGradient>
+<linearGradient id="py" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#11bff7"/><stop offset="1" stop-color="#a52ff5"/></linearGradient>
+</defs>
+<g transform="translate(0 12)">
+<path d="M155 195 L345 340 L500 545 L655 340 L845 195 L845 695 L655 770 L655 495 L500 690 L345 495 L345 770 L155 695Z" fill="#071438" opacity=".95"/>
+<g fill="url(#rod)" stroke="#39caff" stroke-width="3">
+<circle cx="190" cy="260" r="35"/><circle cx="190" cy="350" r="35"/><circle cx="190" cy="440" r="35"/><circle cx="190" cy="530" r="35"/><circle cx="190" cy="620" r="35"/><circle cx="190" cy="710" r="35"/>
+<circle cx="280" cy="325" r="31"/><circle cx="280" cy="415" r="31"/><circle cx="280" cy="505" r="31"/><circle cx="280" cy="595" r="31"/><circle cx="280" cy="685" r="31"/>
+<circle cx="810" cy="260" r="35"/><circle cx="810" cy="350" r="35"/><circle cx="810" cy="440" r="35"/><circle cx="810" cy="530" r="35"/><circle cx="810" cy="620" r="35"/><circle cx="810" cy="710" r="35"/>
+<circle cx="720" cy="325" r="31"/><circle cx="720" cy="415" r="31"/><circle cx="720" cy="505" r="31"/><circle cx="720" cy="595" r="31"/><circle cx="720" cy="685" r="31"/>
+</g>
+<g fill="none" stroke-linecap="round">
+<path d="M260 455 C365 180 430 710 535 485 S710 235 770 430" stroke="#071438" stroke-width="76"/>
+<path d="M260 455 C365 180 430 710 535 485 S710 235 770 430" stroke="url(#wave)" stroke-width="51"/>
+<path d="M250 575 C355 305 435 790 540 605 S695 355 770 560" stroke="#071438" stroke-width="70"/>
+<path d="M250 575 C355 305 435 790 540 605 S695 355 770 560" stroke="url(#wave)" stroke-width="43"/>
+<path d="M280 455 C365 245 435 665 535 485 S695 280 755 430" stroke="#a6f9ff" stroke-width="5" opacity=".8"/>
+</g></g>
+<text x="500" y="925" font-family="DejaVu Sans, sans-serif" font-size="116" font-weight="800" letter-spacing="-7" text-anchor="middle"><tspan fill="#071438">morpho</tspan><tspan fill="url(#py)">.py</tspan></text>
+</svg>
