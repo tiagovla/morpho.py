@@ -7,46 +7,6 @@ import numpy as np
 from morpho import BrillouinZonePath as BZPath
 from morpho import Geometry, Solver
 from morpho import SymmetryPoint as SPoint
-from morpho.brillouinzone import BlochVectors
-
-
-def sample_path(a1, a2, points, points_per_segment):
-    """Sample each symmetry segment including every vertex exactly."""
-    reference = BZPath(a1, a2, points, n_points=2)
-    vertices = np.stack([point.point for point in points], axis=1)
-    vertices = (
-        vertices[0] * reference.b1[:, None]
-        + vertices[1] * reference.b2[:, None]
-    )
-
-    k_values = []
-    distances = []
-    offset = 0.0
-    for start, end in zip(vertices.T[:-1], vertices.T[1:]):
-        length = np.linalg.norm(end - start)
-        segment = np.linspace(start, end, points_per_segment + 1)
-        segment_distance = offset + np.linspace(
-            0.0, length, points_per_segment + 1
-        )
-        if k_values:
-            segment = segment[1:]
-            segment_distance = segment_distance[1:]
-        k_values.extend(segment)
-        distances.extend(segment_distance)
-        offset += length
-
-    class SampledPath:
-        dim = 2
-
-        def __init__(self):
-            self.b1 = reference.b1
-            self.b2 = reference.b2
-            self.betas = BlochVectors(np.asarray(k_values).T, np.asarray(distances))
-
-    point_locations = np.concatenate(
-        ([0.0], np.cumsum(np.linalg.norm(np.diff(vertices, axis=1), axis=0)))
-    )
-    return SampledPath(), np.asarray(distances), point_locations
 
 
 def main():
@@ -64,9 +24,11 @@ def main():
     M = SPoint((0.5, 0.5), "M")
     symmetry_points = [Gamma, X, M, Gamma]
 
-    path, path_distance, point_locations = sample_path(
-        a1, a2, symmetry_points, points_per_segment
+    path = BZPath(
+        a1, a2, symmetry_points, points_per_segment=points_per_segment
     )
+    path_distance = path.betas.cumsum
+    point_locations = path.point_locations
     geometry = Geometry(a1, a2, n_grid, n_grid)
 
     @geometry.overwrite

@@ -2,7 +2,8 @@
 
 from abc import ABC, abstractproperty
 from dataclasses import dataclass
-from typing import List, Tuple, Union
+from numbers import Integral
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from numpy.linalg import norm
@@ -37,11 +38,28 @@ class BrillouinZonePathBase(ABC):
     """BrillouinZoneBase class."""
 
     def __init__(
-        self, path: List[SymmetryPoint], n_points: int = 50, strategy: str = "linear"
+        self,
+        path: List[SymmetryPoint],
+        n_points: int = 50,
+        strategy: str = "linear",
+        points_per_segment: Optional[int] = None,
     ):
         self.path_points = path
         self.n_points = n_points
         self.strat = strategy
+        if points_per_segment is not None:
+            if (
+                not isinstance(points_per_segment, Integral)
+                or isinstance(points_per_segment, bool)
+                or points_per_segment < 1
+            ):
+                raise ValueError("points_per_segment must be a positive integer.")
+            if len(path) < 2:
+                raise ValueError(
+                    "At least two symmetry points are needed for segment sampling."
+                )
+            points_per_segment = int(points_per_segment)
+        self.points_per_segment = points_per_segment
         self._path: np.ndarray
 
     @abstractproperty
@@ -49,8 +67,32 @@ class BrillouinZonePathBase(ABC):
         """Return bloch wave vectors."""
 
     @staticmethod
-    def _interpolate_beta(beta_cs, path, n_points):
-        """Perform linear interpolation."""
+    def _interpolate_beta(beta_cs, path, n_points, points_per_segment=None):
+        """Interpolate a path globally or by segment."""
+        if points_per_segment is not None:
+            beta_values = []
+            beta_distances = []
+            for index in range(path.shape[1] - 1):
+                fractions = np.linspace(0.0, 1.0, points_per_segment + 1)
+                start = path[:, index, None]
+                delta = (path[:, index + 1] - path[:, index])[:, None]
+                segment_values = start + delta * fractions[None, :]
+
+                start_distance = beta_cs[index]
+                segment_length = beta_cs[index + 1] - start_distance
+                segment_distances = start_distance + segment_length * fractions
+
+                if index:
+                    segment_values = segment_values[:, 1:]
+                    segment_distances = segment_distances[1:]
+                beta_values.append(segment_values)
+                beta_distances.append(segment_distances)
+
+            return BlochVectors(
+                np.concatenate(beta_values, axis=1),
+                np.concatenate(beta_distances),
+            )
+
         beta_csi = np.linspace(0, beta_cs[-1], n_points)
         beta_vi = np.vstack(
             [
@@ -83,9 +125,14 @@ class BrillouinZonePath1D(BrillouinZonePathBase):
     path : List[SymmetryPoint]
         List of symmetry points.
     n_points : int
-        Number of vectors.
+        Total number of vectors sampled along the full path. Used when
+        ``points_per_segment`` is not set.
     strategy : str = 'linear'
         Strategy to interpolate.
+    points_per_segment : int, optional
+        Number of intervals on each segment. Every symmetry point is sampled;
+        the total is one plus this value times the number of segments. This
+        takes precedence over ``n_points``.
     """
 
     def __init__(
@@ -94,9 +141,10 @@ class BrillouinZonePath1D(BrillouinZonePathBase):
         path: List[SymmetryPoint],
         n_points: int = 50,
         strategy: str = "linear",
+        points_per_segment: Optional[int] = None,
     ):
         """Initialize a BrillouinZonePath."""
-        super().__init__(path, n_points, strategy)
+        super().__init__(path, n_points, strategy, points_per_segment)
         self.a1 = np.array(a1)
         self.dim = 1
 
@@ -112,7 +160,9 @@ class BrillouinZonePath1D(BrillouinZonePathBase):
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
         if self.strat == "linear":
-            return self._interpolate_beta(beta_cs, self._path, self.n_points)
+            return self._interpolate_beta(
+                beta_cs, self._path, self.n_points, self.points_per_segment
+            )
         raise NotImplementedError
 
     @property
@@ -133,9 +183,14 @@ class BrillouinZonePath2D(BrillouinZonePathBase):
     path : List[SymmetryPoint]
         List of symmetry points.
     n_points : int
-        Number of vectors.
+        Total number of vectors sampled along the full path. Used when
+        ``points_per_segment`` is not set.
     strategy : str = 'linear'
         Strategy to interpolate.
+    points_per_segment : int, optional
+        Number of intervals on each segment. Every symmetry point is sampled;
+        the total is one plus this value times the number of segments. This
+        takes precedence over ``n_points``.
     """
 
     def __init__(
@@ -145,9 +200,10 @@ class BrillouinZonePath2D(BrillouinZonePathBase):
         path: List[SymmetryPoint],
         n_points: int = 50,
         strategy: str = "linear",
+        points_per_segment: Optional[int] = None,
     ):
         """Initialize a BrillouinZonePath."""
-        super().__init__(path, n_points, strategy)
+        super().__init__(path, n_points, strategy, points_per_segment)
         self.a1 = np.array(a1)
         self.a2 = np.array(a2)
         self.dim = 2
@@ -164,7 +220,9 @@ class BrillouinZonePath2D(BrillouinZonePathBase):
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
         if self.strat == "linear":
-            return self._interpolate_beta(beta_cs, self._path, self.n_points)
+            return self._interpolate_beta(
+                beta_cs, self._path, self.n_points, self.points_per_segment
+            )
         raise NotImplementedError
 
     @property
@@ -194,9 +252,14 @@ class BrillouinZonePath3D(BrillouinZonePathBase):
     path : List[SymmetryPoint]
         List of symmetry points.
     n_points : int
-        Number of vectors.
+        Total number of vectors sampled along the full path. Used when
+        ``points_per_segment`` is not set.
     strategy : str = 'linear'
         Strategy to interpolate.
+    points_per_segment : int, optional
+        Number of intervals on each segment. Every symmetry point is sampled;
+        the total is one plus this value times the number of segments. This
+        takes precedence over ``n_points``.
     """
 
     def __init__(
@@ -207,9 +270,10 @@ class BrillouinZonePath3D(BrillouinZonePathBase):
         path: List[SymmetryPoint],
         n_points: int = 50,
         strategy: str = "interpolate",
+        points_per_segment: Optional[int] = None,
     ):
         """Initialize a BrillouinZonePath."""
-        super().__init__(path, n_points, strategy)
+        super().__init__(path, n_points, strategy, points_per_segment)
         self.a1 = np.array(a1)
         self.a2 = np.array(a2)
         self.a3 = np.array(a3)
@@ -231,7 +295,9 @@ class BrillouinZonePath3D(BrillouinZonePathBase):
         beta_cs = np.cumsum(norm(np.diff(self._path, axis=1), axis=0))
         beta_cs = np.pad(beta_cs, (1, 0), "constant")
         if self.strat == "interpolate":
-            return self._interpolate_beta(beta_cs, self._path, self.n_points)
+            return self._interpolate_beta(
+                beta_cs, self._path, self.n_points, self.points_per_segment
+            )
         raise NotImplementedError
 
     @property
