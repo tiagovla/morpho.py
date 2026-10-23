@@ -11,7 +11,7 @@ P, Q, R = 3, 3, 3
 
 a = 1
 w = 0.2 * a
-EPS_R = 1.0
+EPS_R = 2.34
 MU_R = 1.0
 
 # Define the symmetry points
@@ -38,7 +38,6 @@ def eps_rf(eps_r, x, y, z):
     mask2 = (abs(x) >= a / 2 - w / 2) & (abs(z) >= a / 2 - w / 2)
     mask3 = (abs(y) >= a / 2 - w / 2) & (abs(z) >= a / 2 - w / 2)
     eps_r[mask1 | mask2 | mask3] = EPS_R
-    eps_r[:, :, :] = 2
 
 
 # Solve
