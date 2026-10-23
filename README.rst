@@ -173,6 +173,17 @@ book's 31.4% value and saves the calculated band diagram below.
 .. image:: docs/_static/book_ch5_fig2_reproduction.png
   :width: 500
 
+To reproduce the fcc lattice of close-packed dielectric spheres from Chapter 6,
+Figure 2, run:
+
+.. code-block:: console
+
+    uv run python examples/book_ch6_fig2_3d.py
+
+This example uses the book's X-U-L-Γ-X-W-K path and writes the calculated band
+diagram to ``docs/_static/book_ch6_fig2_3d_reproduction.png``. The book reports
+that this structure has no complete photonic band gap.
+
 References:
 ###########
 [1] J. D. Joannopoulos, Ed., Photonic crystals: molding the flow of light, 2nd ed. Princeton: Princeton University Press, 2008.
