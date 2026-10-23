@@ -129,7 +129,7 @@ class Geometry2D(GeometryBase):
     def mu_r(self) -> np.ndarray:
         """Return the relative permeabillity matrice."""
         if self.mu_rf:
-            self.mu_rf(eps_r=self._eps_r, x=self.X.x, y=self.X.y)
+            self.mu_rf(self._mu_r, x=self.X.x, y=self.X.y)
         return self._mu_r
 
 
@@ -204,7 +204,7 @@ class Geometry3D(GeometryBase):
     def mu_r(self) -> np.ndarray:
         """Return the relative permeabillity matrice."""
         if self.mu_rf:
-            self.mu_rf(eps_r=self._eps_r, x=self.X.x, y=self.X.y, z=self.X.z)
+            self.mu_rf(self._mu_r, x=self.X.x, y=self.X.y, z=self.X.z)
         return self._mu_r
 
 
