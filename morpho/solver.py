@@ -9,7 +9,7 @@ from .brillouinzone import BrillouinZonePath1D as BZPath1D
 from .brillouinzone import BrillouinZonePath2D as BZPath2D
 from .brillouinzone import BrillouinZonePath3D as BZPath3D
 from .geometry import Geometry1D, Geometry2D, Geometry3D
-from .utils import convmat
+from .utils import convmat, harmonic_indices
 
 
 class Solver1D:
@@ -86,13 +86,16 @@ class Solver2D:
         mu_rci = convmat(1 / self.geo.mu_r, self.P, self.Q)
         eps_rci = convmat(1 / self.geo.eps_r, self.P, self.Q)
 
-        p = np.arange(-(self.P // 2), self.P // 2 + 1)
-        q = np.arange(-(self.Q // 2), self.Q // 2 + 1)
+        p = harmonic_indices(self.P)
+        q = harmonic_indices(self.Q)
 
-        P0, Q0 = np.meshgrid(p, q)
+        P0, Q0 = np.meshgrid(p, q, indexing="ij")
         b1, b2 = self.path.b1, self.path.b2
 
-        G_k = P0.flatten() * b1[:, None] + Q0.flatten() * b2[:, None]
+        G_k = (
+            P0.ravel(order="F") * b1[:, None]
+            + Q0.ravel(order="F") * b2[:, None]
+        )
         beta = self.path.betas.values
 
         for col in range(beta.shape[1]):
@@ -153,9 +156,9 @@ class Solver3D:
         mu_ri = convmat(1 / self.geo.mu_r, self.P, self.Q, self.R)
         mu_rki = np.kron(np.eye(3), mu_ri)
 
-        p = np.arange(-(self.P // 2), self.P // 2 + 1)
-        q = np.arange(-(self.Q // 2), self.Q // 2 + 1)
-        r = np.arange(-(self.R // 2), self.R // 2 + 1)
+        p = harmonic_indices(self.P)
+        q = harmonic_indices(self.Q)
+        r = harmonic_indices(self.R)
 
         P0, Q0, R0 = np.meshgrid(p, q, r, indexing="ij")
         b1, b2, b3 = self.path.b1, self.path.b2, self.path.b3

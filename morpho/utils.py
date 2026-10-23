@@ -2,6 +2,17 @@
 import numpy as np
 
 
+def harmonic_indices(count: int) -> np.ndarray:
+    """Return ``count`` integer harmonics centered as closely as possible at 0.
+
+    For an even count, the integer range is necessarily asymmetric; this
+    convention keeps zero and the negative Nyquist-side harmonic.
+    """
+    if count < 1:
+        raise ValueError("The number of harmonics must be positive.")
+    return np.arange(-(count // 2), (count + 1) // 2)
+
+
 def convmat(A: np.ndarray, P: int = 1, Q: int = 1, R: int = 1):
     """Return a permittivity/permeability convolution matrix.
 
@@ -20,9 +31,9 @@ def convmat(A: np.ndarray, P: int = 1, Q: int = 1, R: int = 1):
     A = np.atleast_3d(A)
     N1, N2, N3 = A.shape
 
-    p = np.arange(-(P // 2), P // 2 + 1)
-    q = np.arange(-(Q // 2), Q // 2 + 1)
-    r = np.arange(-(R // 2), R // 2 + 1)
+    p = harmonic_indices(P)
+    q = harmonic_indices(Q)
+    r = harmonic_indices(R)
 
     A = np.fft.fftshift(np.fft.fftn(A) / A.size)
 
