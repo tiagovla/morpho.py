@@ -1,7 +1,7 @@
 ![morpho.py banner](docs/assets/banner.svg)
 
 [![PyPI version](https://img.shields.io/pypi/v/morpho.py)](https://pypi.org/project/morpho.py/)
-[![Python versions](https://img.shields.io/pypi/pyversions/morpho.py)](https://pypi.org/project/morpho.py/)
+[![Python 3.9-3.15](https://img.shields.io/badge/Python-3.9--3.15-3776AB?logo=python&logoColor=white)](https://pypi.org/project/morpho.py/)
 [![License](https://img.shields.io/github/license/tiagovla/morpho.py)](LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-online-brightgreen)](https://tiagovla.github.io/morpho.py)
 
@@ -10,7 +10,7 @@ expansion (PWE) method.
 
 ## Installation
 
-The package supports Python 3.8 through 3.15. Add it to a `uv` project with:
+The package supports Python 3.9 through 3.15. Add it to a `uv` project with:
 
 ```console
 uv add morpho.py
