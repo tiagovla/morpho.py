@@ -1,7 +1,5 @@
 """Band structure of dielectric rods on a square lattice (2D)."""
 
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -55,7 +53,7 @@ def main():
         axis.plot(path_distance, tm[:, band], color="tab:blue", lw=1.4)
         axis.plot(path_distance, te[:, band], color="tab:red", lw=1.4)
     axis.set_xticks(point_locations)
-    axis.set_xticklabels([p.name for p in symmetry_points])
+    axis.set_xticklabels(path.point_names)
     axis.set_xlim(0.0, path_distance[-1])
     axis.set_ylim(0.0, 0.8)
     axis.set_ylabel(r"Frequency $\omega a / 2\pi c$")

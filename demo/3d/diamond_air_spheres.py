@@ -2,35 +2,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from morpho import BrillouinZonePath as BZPath
+from _fcc import periodic_sphere_mask, primitive_vectors, symmetry_path
 from morpho import Geometry, Solver
-from morpho import SymmetryPoint as SPoint
 
 
 def main():
     # Textbook reference: Chapter 6, Figure 3, air spheres in dielectric.
     # The conventional cubic supercell lattice constant is normalized to a=1.
     a = 1.0
-    a1 = (a / 2, a / 2, 0.0)
-    a2 = (0.0, a / 2, a / 2)
-    a3 = (a / 2, 0.0, a / 2)
-
-    # Coordinates are in the reciprocal primitive basis (b1, b2, b3).
-    X = SPoint((1 / 2, 1 / 2, 0.0), "X")
-    U = SPoint((5 / 8, 5 / 8, 1 / 4), "U")
-    L = SPoint((1 / 2, 1 / 2, 1 / 2), "L")
-    Gamma = SPoint((0.0, 0.0, 0.0), "Γ")
-    X2 = SPoint((1 / 2, 1 / 2, 0.0), "X")
-    W = SPoint((3 / 4, 1 / 2, 1 / 4), "W")
-    K = SPoint((3 / 4, 3 / 8, 3 / 8), "K")
-    symmetry_points = [X, U, L, Gamma, X2, W, K]
-    path = BZPath(
-        a1,
-        a2,
-        a3,
-        symmetry_points,
-        points_per_segment=20,
-    )
+    a1, a2, a3 = primitive_vectors(a)
+    path = symmetry_path(a1, a2, a3, points_per_segment=20)
 
     # Two interpenetrating fcc sublattices form the diamond lattice.  The
     # radius 0.325a makes neighboring air spheres overlap.
@@ -44,24 +25,8 @@ def main():
     @geometry.overwrite
     def eps_rf(eps_r, x, y, z):
         eps_r[:] = eps_dielectric
-        distance_squared = np.full(eps_r.shape, np.inf)
-        for i in (-1, 0, 1):
-            for j in (-1, 0, 1):
-                for k in (-1, 0, 1):
-                    lattice_x = i * a1[0] + j * a2[0] + k * a3[0]
-                    lattice_y = i * a1[1] + j * a2[1] + k * a3[1]
-                    lattice_z = i * a1[2] + j * a2[2] + k * a3[2]
-                    for basis_x, basis_y, basis_z in basis:
-                        center_x = lattice_x + basis_x
-                        center_y = lattice_y + basis_y
-                        center_z = lattice_z + basis_z
-                        distance_squared = np.minimum(
-                            distance_squared,
-                            (x - center_x) ** 2
-                            + (y - center_y) ** 2
-                            + (z - center_z) ** 2,
-                        )
-        eps_r[distance_squared <= radius**2] = 1.0
+        air = periodic_sphere_mask(x, y, z, (a1, a2, a3), radius, basis)
+        eps_r[air] = 1.0
 
     solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, R=pwe_order)
     solver.run()
