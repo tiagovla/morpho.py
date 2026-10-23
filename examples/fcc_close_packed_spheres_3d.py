@@ -1,6 +1,4 @@
-"""Reproduce the fcc sphere band diagram in Photonic Crystals, Fig. 6.2."""
-from pathlib import Path
-
+"""Band structure of close-packed dielectric spheres on an fcc lattice."""
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -10,6 +8,7 @@ from morpho import SymmetryPoint as SPoint
 
 
 def main():
+    # Textbook reference: Chapter 6, Figure 2, close-packed dielectric spheres.
     # The book's conventional cubic lattice constant is normalized to a=1.
     # These are primitive vectors for its fcc lattice.
     a = 1.0
@@ -82,20 +81,11 @@ def main():
     axis.grid(axis="x", alpha=0.25)
     figure.tight_layout()
 
-    output = (
-        Path(__file__).resolve().parents[1]
-        / "docs"
-        / "_static"
-        / "book_ch6_fig2_3d_reproduction.png"
-    )
-    figure.savefig(output, dpi=180)
-    plt.close(figure)
-
     print("Structure: fcc close-packed spheres, epsilon=13 in air")
     print(f"Plane-wave cutoff: {pwe_order} x {pwe_order} x {pwe_order}")
     print(f"Sampled {len(path_distance)} points on X-U-L-Γ-X-W-K")
     print("The book reports no complete photonic band gap for this structure.")
-    print(f"Saved band diagram to {output}")
+    plt.show()
 
 
 if __name__ == "__main__":

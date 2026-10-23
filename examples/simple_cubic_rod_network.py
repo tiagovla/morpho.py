@@ -1,4 +1,4 @@
-"""3D example."""
+"""Band structure of a simple-cubic dielectric rod network."""
 import matplotlib.pyplot as plt
 import numpy as np
 

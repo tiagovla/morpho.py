@@ -1,4 +1,4 @@
-"""Reproduce the square-rod band diagram in Photonic Crystals, Fig. 5.2."""
+"""Band structure of dielectric rods on a square lattice (2D)."""
 
 from pathlib import Path
 
@@ -11,7 +11,7 @@ from morpho import SymmetryPoint as SPoint
 
 
 def main():
-    # Book, Chapter 5, Figure 2: alumina rods in air on a square lattice.
+    # Textbook reference: Chapter 5, Figure 2, alumina rods in air.
     a = 1.0
     radius = 0.2 * a
     eps_rod = 8.9
