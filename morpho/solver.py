@@ -106,7 +106,11 @@ class Solver2D:
         self.mu_rc = convmat(self.geo.mu_r, self.P, self.Q)
 
         mu_rci = convmat(1 / self.geo.mu_r, self.P, self.Q)
-        eps_rci = convmat(1 / self.geo.eps_r, self.P, self.Q)
+        if self.pol != "TM":
+            # Factorize epsilon before truncating its reciprocal. This
+            # inverse rule converges much faster for TE modes at sharp
+            # dielectric interfaces than Fourier coefficients of 1/eps.
+            eps_rci = np.linalg.inv(self.eps_rc)
 
         p = harmonic_indices(self.P)
         q = harmonic_indices(self.Q)
