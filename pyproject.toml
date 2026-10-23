@@ -1,31 +1,36 @@
-[tool.poetry]
+[project]
 name = "morpho.py"
 version = "0.0.4"
-description = ""
+description = "PWE framework for photonic crystal analysis"
 license = "MIT"
-authors = ["Tiago Vilela <tiagovla@gmail.com>"]
-
-packages = [
-    {include = "morpho", from="."}
+authors = [{name = "Tiago Vilela", email = "tiagovla@gmail.com"}]
+requires-python = ">=3.8,<3.10"
+dependencies = [
+    "numpy>=1.20.1,<2.0.0",
+    "scipy>=1.6.2,<2.0.0",
+    "matplotlib>=3.4.3,<4.0.0",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.8,<3.10"
-numpy = "^1.20.1"
-scipy = "^1.6.2"
-matplotlib = "^3.4.3"
+[project.optional-dependencies]
+docs = ["sphinx>=3.5.1"]
 
-[tool.poetry.dev-dependencies]
-pytest = "^5.2"
-Sphinx = "^3.5.1"
-sphinx-rtd-theme = "^0.5.1"
-sphinx-autodoc-typehints = "^1.11.1"
-matplotlib = "^3.4.1"
+[tool.poetry]
+packages = [
+    {include = "morpho", from = "."}
+]
 
-[tool.poetry.extras]
-docs = ["sphinx"]
+[dependency-groups]
+dev = [
+    "pytest>=5.2",
+    "sphinx>=3.5.1",
+    "sphinx-rtd-theme>=0.5.1",
+    "sphinx-autodoc-typehints>=1.11.1",
+]
+
+[tool.uv]
+package = true
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
