@@ -50,8 +50,8 @@ wn = np.vstack(solver.wn)
 
 _, ax = plt.subplots(figsize=(5, 4))
 
-ax.set_xticklabels(bz_path.point_names)
 ax.set_xticks(bz_path.point_locations)
+ax.set_xticklabels(bz_path.point_names)
 ax.set_xlim(0, bz_path.point_locations[-1])
 ax.set_ylim(0, 1.6)
 ax.set_xlabel(r"Bloch Wave Vector $k$")
