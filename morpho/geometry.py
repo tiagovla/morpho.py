@@ -63,7 +63,7 @@ class Geometry1D(GeometryBase):
     @property
     def X(self) -> CartesianVectors1D:
         """Return cartesian positions."""
-        P0 = np.linspace(-0.5, 0.5, self.n1)
+        P0 = np.arange(self.n1) / self.n1 - 0.5
         x = P0 * self.a1[0]
         return CartesianVectors1D(x)
 
@@ -108,8 +108,9 @@ class Geometry2D(GeometryBase):
     def X(self) -> CartesianVectors2D:
         """Return cartesian positions."""
         P0, Q0 = np.meshgrid(
-            np.linspace(-0.5, 0.5, self.n1),
-            np.linspace(-0.5, 0.5, self.n2),
+            np.arange(self.n1) / self.n1 - 0.5,
+            np.arange(self.n2) / self.n2 - 0.5,
+            indexing="ij",
         )
 
         x = P0 * self.a1[0] + Q0 * self.a2[0]
@@ -180,9 +181,10 @@ class Geometry3D(GeometryBase):
     def X(self) -> CartesianVectors3D:
         """Return cartesian positions."""
         P0, Q0, R0 = np.meshgrid(
-            np.linspace(-0.5, 0.5, self.n1),
-            np.linspace(-0.5, 0.5, self.n2),
-            np.linspace(-0.5, 0.5, self.n3),
+            np.arange(self.n1) / self.n1 - 0.5,
+            np.arange(self.n2) / self.n2 - 0.5,
+            np.arange(self.n3) / self.n3 - 0.5,
+            indexing="ij",
         )
 
         x = P0 * self.a1[0] + Q0 * self.a2[0] + R0 * self.a3[0]
