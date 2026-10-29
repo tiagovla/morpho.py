@@ -81,6 +81,13 @@ Pass multiple polarizations together with
 
 ::: morpho.solver.Solver3D
 
+Solvers reject invalid polarization labels (use exactly `"TM"` or `"TE"`),
+nonpositive or noninteger harmonic counts, and incompatible geometry/path
+lattices. Each material-grid dimension needs at least `2 * harmonics - 1`
+samples to represent every Fourier difference used by the convolution matrix.
+Paths need at least two finite points and, with global sampling, an integer
+`n_points >= 2`. Material samples must be finite.
+
 ## Fourier utilities
 
 ::: morpho.utils.harmonic_indices

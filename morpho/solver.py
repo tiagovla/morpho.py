@@ -1,6 +1,7 @@
 """Implement 3D/2D solvers."""
 
 from dataclasses import dataclass
+from numbers import Integral
 from typing import List, Optional, Union
 
 import numpy as np
@@ -12,6 +13,52 @@ from .brillouinzone import BrillouinZonePath3D as BZPath3D
 from .brillouinzone import BrillouinZonePathBase
 from .geometry import Geometry1D, Geometry2D, Geometry3D
 from .utils import convmat, harmonic_indices
+
+
+def _validate_inputs(geometry, path, counts, pol=None):
+    if len(counts) < 3 and pol not in ("TM", "TE"):
+        raise ValueError("pol must be 'TM' or 'TE'.")
+    for count in counts:
+        harmonic_indices(count)
+    dimension = len(counts)
+    if not isinstance(geometry, (Geometry1D, Geometry2D, Geometry3D)) or not isinstance(
+        path, BrillouinZonePathBase
+    ):
+        raise ValueError(
+            "Pass a Geometry and a BrillouinZonePath of the same dimension."
+        )
+    if path.dim != dimension or geometry.a1.shape != (dimension,):
+        raise ValueError(
+            "Geometry and path must have the same dimension as the solver."
+        )
+    basis = np.stack([getattr(path, f"a{i + 1}") for i in range(dimension)])
+    geometry_basis = np.stack(
+        [getattr(geometry, f"a{i + 1}") for i in range(dimension)]
+    )
+    if (
+        np.iscomplexobj(basis)
+        or not np.isfinite(basis).all()
+        or np.linalg.matrix_rank(basis) != dimension
+    ):
+        raise ValueError("Lattice vectors must be finite and linearly independent.")
+    if not np.array_equal(geometry_basis, basis):
+        raise ValueError("Geometry and path must use the same lattice vectors.")
+    if len(path.path_points) < 2 or any(
+        point.point.shape != (dimension,)
+        or not np.isfinite(point.point).all()
+        or np.iscomplexobj(point.point)
+        for point in path.path_points
+    ):
+        raise ValueError(
+            "A path needs at least two finite points of the lattice dimension."
+        )
+    if path.points_per_segment is None:
+        if (
+            not isinstance(path.n_points, Integral)
+            or isinstance(path.n_points, bool)
+            or path.n_points < 2
+        ):
+            raise ValueError("n_points must be an integer of at least two.")
 
 
 @dataclass
@@ -71,6 +118,7 @@ class Solver1D:
 
     def run(self) -> Solution:
         """Calculate bands and modes and return a solution containing the path."""
+        _validate_inputs(self.geo, self.path, (self.P,), self.pol)
         self.wn = []
         self.modes = []
         self.eps_rc = convmat(self.geo.eps_r, self.P)
@@ -136,6 +184,7 @@ class Solver2D:
 
     def run(self) -> Solution:
         """Calculate bands and modes and return a solution containing the path."""
+        _validate_inputs(self.geo, self.path, (self.P, self.Q), self.pol)
         self.wn = []
         self.modes = []
         self.eps_rc = convmat(self.geo.eps_r, self.P, self.Q)
@@ -210,6 +259,7 @@ class Solver3D:
 
     def run(self) -> Solution:
         """Calculate bands and modes and return a solution containing the path."""
+        _validate_inputs(self.geo, self.path, (self.P, self.Q, self.R))
         self.wn = []
         self.modes = []
         self.eps_rc = convmat(self.geo.eps_r, self.P, self.Q, self.R)

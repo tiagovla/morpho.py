@@ -1,5 +1,7 @@
 """This module implements utilities."""
 
+from numbers import Integral
+
 import numpy as np
 
 
@@ -9,8 +11,8 @@ def harmonic_indices(count: int) -> np.ndarray:
     For an even count, the integer range is necessarily asymmetric; this
     convention keeps zero and the negative Nyquist-side harmonic.
     """
-    if count < 1:
-        raise ValueError("The number of harmonics must be positive.")
+    if not isinstance(count, Integral) or isinstance(count, bool) or count < 1:
+        raise ValueError("The number of harmonics must be a positive integer.")
     return np.arange(-(count // 2), (count + 1) // 2)
 
 
@@ -28,6 +30,9 @@ def convmat(A: np.ndarray, P: int = 1, Q: int = 1, R: int = 1):
     R : int
         Number of terms in the direction of the reciprocal vector T3.
     """
+    p = harmonic_indices(P)
+    q = harmonic_indices(Q)
+    r = harmonic_indices(R)
     NH = P * Q * R
     A = np.asarray(A)
     if A.ndim == 1:
@@ -37,10 +42,12 @@ def convmat(A: np.ndarray, P: int = 1, Q: int = 1, R: int = 1):
     elif A.ndim != 3:
         raise ValueError("A must have one, two, or three dimensions.")
     N1, N2, N3 = A.shape
-
-    p = harmonic_indices(P)
-    q = harmonic_indices(Q)
-    r = harmonic_indices(R)
+    if any(size < 2 * count - 1 for size, count in zip(A.shape, (P, Q, R))):
+        raise ValueError(
+            "Each grid dimension must have at least 2 * harmonics - 1 samples."
+        )
+    if not np.isfinite(A).all():
+        raise ValueError("Material samples must be finite.")
 
     A = np.fft.fftshift(np.fft.fftn(A) / A.size)
 
