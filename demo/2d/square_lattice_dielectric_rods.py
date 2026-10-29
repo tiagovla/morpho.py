@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 
 from morpho import BrillouinZonePath as BZPath
-from morpho import Geometry, Solver, plot_bands, plot_brillouin_zone
+from morpho import Geometry, Solver, find_band_gaps, plot_bands, plot_brillouin_zone
 from morpho import SymmetryPoint as SPoint
 
 
@@ -34,6 +34,11 @@ def main():
     te_solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, pol="TE")
     tm_solution = tm_solver.run(n_bands=4, store_modes=False)
     te_solution = te_solver.run(n_bands=4, store_modes=False)
+
+    for gap in find_band_gaps(tm_solution, n_bands=2):
+        print(
+            f"TM path gap: {gap.lower:.4f}–{gap.upper:.4f}; gap-to-midgap {100 * gap.gap_to_midgap_ratio:.2f}%"
+        )
 
     _, axis = plt.subplots(figsize=(7, 5), tight_layout=True)
     plot_bands((tm_solution, te_solution), n_bands=4, ax=axis, lw=1.4)

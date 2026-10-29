@@ -59,6 +59,29 @@ For 3D zones, rotate the returned axes with ``zone_axis.view_init(elev=25, azim=
 Pass multiple polarizations together with
 ``plot_bands((tm_solution, te_solution), ax=band_axis)`` to shade their shared gaps.
 
+## Band gaps
+
+::: morpho.bands.BandGap
+
+::: morpho.bands.find_band_gaps
+
+Use the same gap calculation without opening a figure:
+
+```python
+from morpho import find_band_gaps
+
+for gap in find_band_gaps((tm_solution, te_solution), n_bands=4):
+    print(gap.lower, gap.upper, 100 * gap.gap_to_midgap_ratio)
+```
+
+Edges use `omega a / (2 pi c)`, with `a = |a1|` unless `lattice_constant=a`
+is supplied. Ratios are fractions: `0.314` means `31.4%`. Multiple solutions
+return only their shared gaps. `n_bands` limits the bands analyzed, so gaps
+above that limit are not reported. Touching edges and gaps within numerical
+tolerance are excluded. Results apply only to the sampled path, not the whole
+Brillouin zone. Complex-frequency spectra are rejected; use the real and
+imaginary frequency plots to inspect lossy results instead.
+
 ## Geometry
 
 ::: morpho.geometry.Geometry

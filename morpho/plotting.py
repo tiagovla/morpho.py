@@ -1,11 +1,9 @@
 """Matplotlib helpers for Brillouin zones and band structures."""
 
-from numbers import Integral, Real
-
 import numpy as np
 from numpy.linalg import norm
 
-from .solver import Solution
+from .bands import _find_band_gaps, _prepare_bands
 
 
 def plot_brillouin_zone(
@@ -231,82 +229,18 @@ def plot_bands(
 
     if component not in ("real", "imag"):
         raise ValueError("component must be 'real' or 'imag'.")
-    solutions = solution if isinstance(solution, (list, tuple)) else [solution]
-    if not solutions:
-        raise ValueError("At least one solution is required.")
-    if any(not isinstance(result, Solution) for result in solutions):
-        raise TypeError("Pass the Solution returned by Solver.run().")
-    if n_bands is not None and (
-        not isinstance(n_bands, Integral) or isinstance(n_bands, bool) or n_bands < 1
-    ):
-        raise ValueError("n_bands must be a positive integer.")
-
+    solutions, band_sets = _prepare_bands(solution, n_bands, lattice_constant)
     path = solutions[0].path
     path_distance = solutions[0].path_distance
     point_locations = path.point_locations
     point_names = path.point_names
-    if lattice_constant is None:
-        lattice_constant = norm(path.a1)
-    if (
-        not isinstance(lattice_constant, Real)
-        or not np.isfinite(lattice_constant)
-        or lattice_constant <= 0
-    ):
-        raise ValueError("lattice_constant must be a positive finite length.")
-    frequency_scale = lattice_constant / (2 * np.pi)
-    lossy = any(np.any(np.imag(result.wn)) for result in solutions)
-    band_sets = []
-    gaps = None
-    for result in solutions:
-        if result.path is not path and (
-            not np.array_equal(result.path.betas.values, path.betas.values)
-            or not np.array_equal(result.path.point_locations, point_locations)
-            or result.path.point_names != point_names
-            or norm(result.path.a1) != norm(path.a1)
-        ):
-            raise ValueError("All solutions must use the same path.")
-        if (
-            result.wn.ndim != 2
-            or result.wn.shape[0] != len(path_distance)
-            or result.wn.shape[1] == 0
-            or not np.isfinite(result.wn).all()
-        ):
-            raise ValueError(
-                "Solution bands must be finite with one row per path sample."
-            )
-        frequencies = result.wn.real if component == "real" else result.wn.imag
-        bands = frequencies[:, :n_bands] * frequency_scale
-        band_sets.append(bands)
-
-        solver_gaps = []
-        for index in range(bands.shape[1] - 1):
-            lower = bands[:, index].max()
-            upper = bands[:, index + 1].min()
-            if upper > lower and not np.isclose(upper, lower, rtol=1e-8, atol=1e-12):
-                solver_gaps.append((lower, upper))
-        if gaps is None:
-            gaps = solver_gaps
-        else:
-            gaps = [
-                (max(lower, other_lower), min(upper, other_upper))
-                for lower, upper in gaps
-                for other_lower, other_upper in solver_gaps
-                if min(upper, other_upper) > max(lower, other_lower)
-                and not np.isclose(
-                    min(upper, other_upper),
-                    max(lower, other_lower),
-                    rtol=1e-8,
-                    atol=1e-12,
-                )
-            ]
-
-    if lossy or component == "imag":
-        gaps = []
+    lossy = any(np.any(bands.imag) for bands in band_sets)
+    gaps = [] if lossy or component == "imag" else _find_band_gaps(band_sets, n_bands)
     if ax is None:
         _, ax = plt.subplots()
 
-    for lower, upper in gaps or []:
-        ax.axhspan(lower, upper, color="#ffe600", alpha=0.8, zorder=0)
+    for gap in gaps:
+        ax.axhspan(gap.lower, gap.upper, color="#ffe600", alpha=0.8, zorder=0)
 
     labels = []
     for index, (result, bands) in enumerate(zip(solutions, band_sets)):
@@ -314,7 +248,8 @@ def plot_bands(
         label = style.pop("label", result.pol)
         if "color" not in style and "c" not in style:
             style["color"] = f"C{index}"
-        lines = ax.plot(path_distance, bands, **style)
+        frequencies = (bands.real if component == "real" else bands.imag)[:, :n_bands]
+        lines = ax.plot(path_distance, frequencies, **style)
         if label:
             lines[0].set_label(label)
             labels.append(label)

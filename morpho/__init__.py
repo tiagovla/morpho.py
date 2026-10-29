@@ -10,9 +10,12 @@ from morpho.brillouinzone import (
 from morpho.geometry import Geometry, Geometry1D, Geometry2D, Geometry3D
 from morpho.solver import Solution, Solver, Solver1D, Solver2D, Solver3D
 from morpho.plotting import plot_bands, plot_brillouin_zone
+from morpho.bands import BandGap, find_band_gaps
 
 __all__ = [
     "__version__",
+    "BandGap",
+    "find_band_gaps",
     "BrillouinZonePath",
     "BrillouinZonePath1D",
     "BrillouinZonePath2D",

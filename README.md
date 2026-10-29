@@ -75,3 +75,4 @@ gap-to-midgap ratio is about 31.45%, compared with 31.4% in the book.
 See the [examples documentation](https://tiagovla.github.io/morpho.py/examples/)
 for the other demos, their parameters, figures, and comparisons with the book
 where applicable.
+
