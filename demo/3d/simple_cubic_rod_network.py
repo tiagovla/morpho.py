@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from morpho import BrillouinZonePath as BZPath
-from morpho import Geometry, Solver
+from morpho import Geometry, Solver, plot_bands, plot_brillouin_zone
 from morpho import SymmetryPoint as SPoint
 
 
@@ -34,19 +34,15 @@ def main():
         eps_r[rod_x | rod_y | rod_z] = eps_rod
 
     solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, R=pwe_order)
-    solver.run()
-    frequencies = np.vstack(solver.wn) * a / (2 * np.pi)
+    solution = solver.run()
 
-    figure, axis = plt.subplots(figsize=(5, 4))
-    axis.plot(path.betas.cumsum, frequencies, color="black", lw=0.8)
-    axis.set_xticks(path.point_locations)
-    axis.set_xticklabels(path.point_names)
-    axis.set_xlim(0.0, path.point_locations[-1])
+    _, axis = plt.subplots(figsize=(5, 4), tight_layout=True)
+    plot_bands(solution, ax=axis, color="black", lw=0.8)
+    zone_axis = plot_brillouin_zone(
+        solution.path, ax=axis, inset=True, inset_bounds=(0.0, 0.01, 0.30, 0.27)
+    )
+    zone_axis.view_init(elev=35, azim=-45)
     axis.set_ylim(0.0, 1.6)
-    axis.set_xlabel(r"Bloch wave vector $k$")
-    axis.set_ylabel(r"Frequency $\omega a / 2\pi c$")
-    axis.grid(True)
-    figure.tight_layout()
     plt.show()
 
 

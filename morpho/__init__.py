@@ -8,7 +8,8 @@ from morpho.brillouinzone import (
     SymmetryPoint,
 )
 from morpho.geometry import Geometry, Geometry1D, Geometry2D, Geometry3D
-from morpho.solver import Solver, Solver1D, Solver2D, Solver3D
+from morpho.solver import Solution, Solver, Solver1D, Solver2D, Solver3D
+from morpho.plotting import plot_bands, plot_brillouin_zone
 
 __all__ = [
     "__version__",
@@ -17,6 +18,9 @@ __all__ = [
     "BrillouinZonePath2D",
     "BrillouinZonePath3D",
     "SymmetryPoint",
+    "plot_bands",
+    "plot_brillouin_zone",
+    "Solution",
     "Geometry",
     "Geometry1D",
     "Geometry2D",

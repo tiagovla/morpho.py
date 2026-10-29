@@ -1,6 +1,7 @@
 """Implement 3D/2D solvers."""
 
-from typing import List, Union
+from dataclasses import dataclass
+from typing import List, Optional, Union
 
 import numpy as np
 from scipy.linalg import eigh
@@ -8,8 +9,37 @@ from scipy.linalg import eigh
 from .brillouinzone import BrillouinZonePath1D as BZPath1D
 from .brillouinzone import BrillouinZonePath2D as BZPath2D
 from .brillouinzone import BrillouinZonePath3D as BZPath3D
+from .brillouinzone import BrillouinZonePathBase
 from .geometry import Geometry1D, Geometry2D, Geometry3D
 from .utils import convmat, harmonic_indices
+
+
+@dataclass
+class Solution:
+    """Calculated bands and modes together with their sampling path.
+
+    Parameters
+    ----------
+    path : BrillouinZonePathBase
+        Path used by the solver.
+    wn : numpy.ndarray, shape (n_k, n_bands)
+        Unscaled eigen-wavenumbers ``omega / c``, ordered low to high.
+    modes : list of numpy.ndarray
+        Eigenvectors at each sampled wave vector, with one mode per column.
+    pol : str, optional
+        Polarization label for 1D and 2D solutions. Vectorial 3D solutions
+        have no polarization label.
+    """
+
+    path: BrillouinZonePathBase
+    wn: np.ndarray
+    modes: List[np.ndarray]
+    pol: Optional[str] = None
+
+    @property
+    def path_distance(self) -> np.ndarray:
+        """Return cumulative wave-vector distance at each sampled path point."""
+        return self.path.betas.cumsum
 
 
 class Solver1D:
@@ -39,8 +69,10 @@ class Solver1D:
         self.wn: List[np.ndarray] = []
         self.modes: List[np.ndarray] = []
 
-    def run(self):
-        """Calculate the eigen-wavenumbers and modes."""
+    def run(self) -> Solution:
+        """Calculate bands and modes and return a solution containing the path."""
+        self.wn = []
+        self.modes = []
         self.eps_rc = convmat(self.geo.eps_r, self.P)
         self.mu_rc = convmat(self.geo.mu_r, self.P)
         mu_rci = convmat(1 / self.geo.mu_r, self.P)
@@ -64,6 +96,8 @@ class Solver1D:
             D, V = eigh(A, B)
             self.wn.append(np.sqrt(np.maximum(D, 0)))
             self.modes.append(V)
+
+        return Solution(self.path, np.stack(self.wn), self.modes.copy(), self.pol)
 
 
 class Solver2D:
@@ -100,8 +134,10 @@ class Solver2D:
         self.wn: List[np.ndarray] = []
         self.modes: List[np.ndarray] = []
 
-    def run(self):
-        """Calculate the eigen-wavenumbers and modes."""
+    def run(self) -> Solution:
+        """Calculate bands and modes and return a solution containing the path."""
+        self.wn = []
+        self.modes = []
         self.eps_rc = convmat(self.geo.eps_r, self.P, self.Q)
         self.mu_rc = convmat(self.geo.mu_r, self.P, self.Q)
 
@@ -139,6 +175,8 @@ class Solver2D:
             self.wn.append(np.sqrt(np.maximum(D, 0)))
             self.modes.append(V)
 
+        return Solution(self.path, np.stack(self.wn), self.modes.copy(), self.pol)
+
 
 class Solver3D:
     """Implement a 3D PWE Solver.
@@ -170,8 +208,10 @@ class Solver3D:
         self.wn: List[np.ndarray] = []
         self.modes: List[np.ndarray] = []
 
-    def run(self):
-        """Calculate the eigen-wavenumbers and modes."""
+    def run(self) -> Solution:
+        """Calculate bands and modes and return a solution containing the path."""
+        self.wn = []
+        self.modes = []
         self.eps_rc = convmat(self.geo.eps_r, self.P, self.Q, self.R)
         self.mu_rc = convmat(self.geo.mu_r, self.P, self.Q, self.R)
 
@@ -222,6 +262,8 @@ class Solver3D:
             # least negative, so reverse to report frequencies low to high.
             self.wn.append(np.sqrt(np.maximum(-D, 0))[::-1])
             self.modes.append(V[:, ::-1])
+
+        return Solution(self.path, np.stack(self.wn), self.modes.copy())
 
 
 def Solver(geometry, path, *args, **kwargs) -> Union[Solver1D, Solver2D, Solver3D]:

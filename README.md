@@ -24,9 +24,15 @@ on a square lattice. The lattice constant is normalized to `a = 1`.
 
 ```python
 import matplotlib.pyplot as plt
-import numpy as np
 
-from morpho import BrillouinZonePath, Geometry, Solver, SymmetryPoint
+from morpho import (
+    BrillouinZonePath,
+    Geometry,
+    Solver,
+    SymmetryPoint,
+    plot_bands,
+    plot_brillouin_zone,
+)
 
 a = 1.0
 radius = 0.2 * a
@@ -47,25 +53,23 @@ def eps_rf(eps_r, x, y):
 
 tm = Solver(geometry, path, P=7, Q=7, pol="TM")
 te = Solver(geometry, path, P=7, Q=7, pol="TE")
-tm.run()
-te.run()
+tm_solution = tm.run()
+te_solution = te.run()
 
-scale = a / (2 * np.pi)
-frequency_tm = np.vstack(tm.wn) * scale
-frequency_te = np.vstack(te.wn) * scale
-
-figure, axis = plt.subplots()
-for band in range(4):
-    axis.plot(path.betas.cumsum, frequency_tm[:, band], "b-")
-    axis.plot(path.betas.cumsum, frequency_te[:, band], "r-")
-axis.set_xticks(path.point_locations)
-axis.set_xticklabels(path.point_names)
-axis.set_ylabel(r"Frequency $\omega a / 2\pi c$")
-axis.set_xlabel(r"Bloch wave vector $k$")
-axis.grid(True)
-figure.tight_layout()
+_, axis = plt.subplots(figsize=(7, 5), tight_layout=True)
+plot_bands((tm_solution, te_solution), n_bands=4, ax=axis)
+plot_brillouin_zone(
+    tm_solution.path, ax=axis, inset=True, inset_bounds=(0.32, 0.12, 0.30, 0.25)
+)
 plt.show()
 ```
+
+`Solver.run()` returns a `Solution` containing its path, eigen-wavenumbers,
+modes, and polarization. `plot_bands(solution)` normalizes frequencies, labels
+the path, and shades gaps. For multiple solutions, it shades only their shared
+gaps along the sampled path.
+`plot_brillouin_zone(..., ax=axis, inset=True)` adds a transparent zone inset
+inside the band plot.
 
 <p align="center">
   <img src="https://tiagovla.github.io/morpho.py/assets/square_lattice_dielectric_rods.png" alt="TM and TE band structure for alumina rods on a square lattice" width="720">

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from morpho import BrillouinZonePath as BZPath
-from morpho import Geometry, Solver
+from morpho import Geometry, Solver, plot_bands, plot_brillouin_zone
 from morpho import SymmetryPoint as SPoint
 
 
@@ -42,61 +42,16 @@ def main():
 
     tm_solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, pol="TM")
     te_solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, pol="TE")
-    tm_solver.run()
-    te_solver.run()
+    tm_solution = tm_solver.run()
+    te_solution = te_solver.run()
 
-    scale = a / (2 * np.pi)
-    tm = np.vstack(tm_solver.wn) * scale
-    te = np.vstack(te_solver.wn) * scale
-    path_distance = path.betas.cumsum
-
-    gap_lower = max(np.max(tm[:, 1]), np.max(te[:, 0]))
-    gap_upper = min(np.min(tm[:, 2]), np.min(te[:, 1]))
-    gap_ratio = 200.0 * (gap_upper - gap_lower) / (gap_upper + gap_lower)
-
-    figure, axis = plt.subplots(figsize=(7, 5))
-    axis.axhspan(gap_lower, gap_upper, color="#ffe600", alpha=0.8, zorder=0)
-    band_count = min(6, tm.shape[1], te.shape[1])
-    for band in range(band_count):
-        axis.plot(path_distance, tm[:, band], color="tab:blue", lw=1.4)
-        axis.plot(path_distance, te[:, band], color="tab:red", lw=1.4)
-    axis.text(
-        path_distance[-1] * 0.15,
-        0.12,
-        "TM modes",
-        color="tab:blue",
-        transform=axis.get_xaxis_transform(),
-        va="center",
+    _, axis = plt.subplots(figsize=(7, 5), tight_layout=True)
+    plot_bands((tm_solution, te_solution), n_bands=6, ax=axis, lw=1.4)
+    plot_brillouin_zone(
+        tm_solution.path, ax=axis, inset=True, inset_bounds=(0.32, 0.12, 0.30, 0.25)
     )
-    axis.text(
-        path_distance[-1] * 0.05,
-        0.42,
-        "TE modes",
-        color="tab:red",
-        transform=axis.get_xaxis_transform(),
-        va="center",
-    )
-    axis.text(
-        path_distance[-1] * 0.55,
-        (gap_lower + gap_upper) / 2,
-        "Photonic Band Gap",
-        ha="center",
-        va="center",
-    )
-    axis.set_xticks(path.point_locations)
-    axis.set_xticklabels(path.point_names)
-    axis.set_xlim(0.0, path_distance[-1])
     axis.set_ylim(0.0, 0.8)
-    axis.set_ylabel(r"Frequency $\omega a / 2\pi c$")
-    axis.set_xlabel(r"Bloch wave vector $k$")
-    axis.grid(True, alpha=0.25)
-    figure.tight_layout()
 
-    print(f"TM band 2 maximum along Γ-M-K-Γ: {np.max(tm[:, 1]):.6f}")
-    print(f"TE band 1 maximum along Γ-M-K-Γ: {np.max(te[:, 0]):.6f}")
-    print(f"TM band 3 minimum along Γ-M-K-Γ: {np.min(tm[:, 2]):.6f}")
-    print(f"TE band 2 minimum along Γ-M-K-Γ: {np.min(te[:, 1]):.6f}")
-    print(f"Complete gap-to-midgap ratio: {gap_ratio:.2f}% " "(book reference: 18.6%)")
     plt.show()
 
 

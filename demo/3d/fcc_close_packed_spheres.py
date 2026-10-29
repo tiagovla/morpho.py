@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from _fcc import periodic_sphere_mask, primitive_vectors, symmetry_path
-from morpho import Geometry, Solver
+from morpho import Geometry, Solver, plot_bands, plot_brillouin_zone
 
 
 def main():
@@ -28,27 +28,19 @@ def main():
         eps_r[sphere] = eps_sphere
 
     solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, R=pwe_order)
-    solver.run()
+    solution = solver.run()
 
-    frequencies = np.vstack(solver.wn) * a / (2 * np.pi)
-    path_distance = path.betas.cumsum
-    point_locations = path.point_locations
-
-    figure, axis = plt.subplots(figsize=(6, 5))
-    for band in range(min(64, frequencies.shape[1])):
-        axis.plot(path_distance, frequencies[:, band], color="navy", lw=0.8)
-    axis.set_xticks(point_locations)
-    axis.set_xticklabels(path.point_names)
-    axis.set_xlim(0.0, path_distance[-1])
+    _, axis = plt.subplots(figsize=(6, 5), tight_layout=True)
+    plot_bands(solution, n_bands=64, ax=axis, lattice_constant=a, color="navy", lw=0.8)
+    zone_axis = plot_brillouin_zone(
+        solution.path, ax=axis, inset=True, inset_bounds=(0.0, 0.0, 0.36, 0.30)
+    )
+    zone_axis.view_init(elev=25, azim=-105)
     axis.set_ylim(0.0, 1.0)
-    axis.set_ylabel(r"Frequency $\omega a / 2\pi c$")
-    axis.set_xlabel(r"Bloch wave vector $k$")
-    axis.grid(axis="x", alpha=0.25)
-    figure.tight_layout()
 
     print("Structure: fcc close-packed spheres, epsilon=13 in air")
     print(f"Plane-wave cutoff: {pwe_order} x {pwe_order} x {pwe_order}")
-    print(f"Sampled {len(path_distance)} points on X-U-L-Γ-X-W-K")
+    print(f"Sampled {len(solution.wn)} points on X-U-L-Γ-X-W-K")
     print("The book reports no complete photonic band gap for this structure.")
     plt.show()
 
