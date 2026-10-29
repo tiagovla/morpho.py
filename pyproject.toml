@@ -2,7 +2,7 @@
 name = "morpho.py"
 version = "0.2.2"
 description = "PWE framework for photonic crystal analysis"
-license = "MIT"
+license = "GPL-3.0-or-later"
 authors = [{name = "Tiago Vilela", email = "tiagovla@gmail.com"}]
 requires-python = ">=3.9,<3.16"
 classifiers = [
