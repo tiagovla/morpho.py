@@ -38,6 +38,11 @@ media, analytic Fourier coefficients for circular inclusions, and homogeneous
 dispersion on oblique lattices. Agreement with one reference does not establish
 convergence for a different geometry.
 
+At Gamma, static electric fields are chosen in the curl-free subspace subject
+to `div(D) = 0` and normalized with the permittivity matrix. This separates the
+two returned physical zero modes from the degenerate longitudinal null modes.
+The choice of basis inside this static subspace is not unique.
+
 Band gaps inferred from a symmetry path apply only to that sampled path.
 Establishing a complete gap requires checking the relevant Brillouin-zone
 interior as well. Complex-frequency lossy spectra do not define conventional

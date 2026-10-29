@@ -118,6 +118,27 @@ def _transverse_basis(k):
     return basis
 
 
+def _static_electric_modes(k, epsilon):
+    """Select two curl-free Gamma fields that also satisfy Gauss's law."""
+    count = k.shape[1]
+    lengths = np.linalg.norm(k, axis=0)
+    zero = np.flatnonzero(lengths == 0)[0]
+    basis = _transverse_basis(k)[:, [zero, count + zero]].astype(complex)
+    nonzero = np.flatnonzero(lengths != 0)
+    if len(nonzero):
+        longitudinal = np.zeros((3 * count, len(nonzero)))
+        for component in range(3):
+            longitudinal[component * count + nonzero, np.arange(len(nonzero))] = (
+                k[component, nonzero] / lengths[nonzero]
+            )
+        charge = longitudinal.T @ epsilon
+        basis -= longitudinal @ solve(
+            charge @ longitudinal, charge @ basis, assume_a="pos"
+        )
+    metric = np.linalg.cholesky(basis.conj().T @ epsilon @ basis)
+    return basis @ solve(metric.conj().T, np.eye(2))
+
+
 @dataclass
 class Solution:
     """Calculated bands and modes together with their sampling path.
@@ -412,9 +433,18 @@ class Solver3D:
 
             # eigh returns the negative eigenvalues from most negative to
             # least negative, so reverse to report frequencies low to high.
-            self.wn.append(np.sqrt(np.maximum(-D, 0))[::-1])
+            frequencies = np.sqrt(np.maximum(-D, 0))[::-1]
+            if np.any(np.all(k == 0, axis=0)):
+                frequencies[:2] = 0
             if store_modes:
-                self.modes.append(V[:, ::-1].copy())
+                modes = V[:, ::-1].copy()
+                if np.any(np.all(k == 0, axis=0)):
+                    # Gamma's degenerate zero eigenspace also contains
+                    # longitudinal fields; impose Gauss's law before choosing modes.
+                    static = _static_electric_modes(k, B)
+                    modes[:, : min(2, count)] = static[:, : min(2, count)]
+                self.modes.append(modes)
+            self.wn.append(frequencies)
 
         return Solution(self.path, np.stack(self.wn), self.modes.copy())
 
