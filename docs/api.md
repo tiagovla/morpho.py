@@ -88,6 +88,25 @@ samples to represent every Fourier difference used by the convolution matrix.
 Paths need at least two finite points and, with global sampling, an integer
 `n_points >= 2`. Material samples must be finite.
 
+### Lossy materials
+
+All dimensions accept frequency-independent, scalar complex `eps_r` and `mu_r`.
+Material samples must be finite and nonzero. Real, positive materials use a
+Hermitian eigensolver; complex or nonpositive materials use a general eigensolver.
+`Solution.wn` contains complex `omega / c`, ordered by real part and then
+imaginary part, with the principal square-root convention. For ordinary passive
+dielectrics, use positive imaginary material parts with `exp(-i omega t)`;
+negative imaginary frequencies describe temporal decay at real Bloch vectors.
+This does not solve for complex Bloch vectors at a fixed real frequency.
+Frequency dispersion, anisotropic tensors, and nonlinear material models are
+not included. Negative material constants are treated as nondispersive inputs;
+physical metal models generally require frequency dispersion.
+
+For example, set `geometry.eps_r[:] = 4 + 0.2j` without a material callback,
+then call `solver.run()`. Use `plot_bands(solution)` for real frequencies or
+`plot_bands(solution, component="imag")` for imaginary frequencies. Lossy bands
+are never shaded as conventional band gaps.
+
 ## Fourier utilities
 
 ::: morpho.utils.harmonic_indices

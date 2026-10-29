@@ -5,7 +5,7 @@ from numbers import Integral
 from typing import List, Optional, Union
 
 import numpy as np
-from scipy.linalg import eigh
+from scipy.linalg import eig, eigh, solve
 
 from .brillouinzone import BrillouinZonePath1D as BZPath1D
 from .brillouinzone import BrillouinZonePath2D as BZPath2D
@@ -61,6 +61,49 @@ def _validate_inputs(geometry, path, counts, pol=None):
             raise ValueError("n_points must be an integer of at least two.")
 
 
+def _material_samples(geometry):
+    eps_r, mu_r = geometry.eps_r.copy(), geometry.mu_r.copy()
+    for name, samples in (("eps_r", eps_r), ("mu_r", mu_r)):
+        if not np.isfinite(samples).all() or np.any(samples == 0):
+            raise ValueError(f"{name} must contain finite, nonzero material values.")
+    hermitian = all(
+        not np.any(samples.imag) and np.all(samples.real > 0)
+        for samples in (eps_r, mu_r)
+    )
+    return eps_r, mu_r, hermitian
+
+
+def _eigenpairs(A, B, hermitian):
+    if not hermitian:
+        values, vectors = eig(A, B)
+        if not np.isfinite(values).all():
+            raise ValueError("The material eigenproblem has nonfinite eigenvalues.")
+        frequencies = np.sqrt(values.astype(complex))
+        order = np.lexsort((frequencies.imag, frequencies.real))
+        return frequencies[order], vectors[:, order]
+    values, vectors = eigh(A, B)
+    return np.sqrt(np.maximum(values, 0)), vectors
+
+
+def _transverse_basis(k):
+    """Span two displacement directions perpendicular to each retained k-G."""
+    directions = k.T.copy()
+    lengths = np.linalg.norm(directions, axis=1)
+    directions[lengths == 0] = (1.0, 0.0, 0.0)
+    directions /= np.where(lengths == 0, 1.0, lengths)[:, None]
+    reference = np.eye(3)[np.argmin(np.abs(directions), axis=1)]
+    first = np.cross(directions, reference)
+    first /= np.linalg.norm(first, axis=1)[:, None]
+    second = np.cross(directions, first)
+    count = k.shape[1]
+    indices = np.arange(count)
+    basis = np.zeros((3 * count, 2 * count))
+    for component in range(3):
+        basis[component * count + indices, indices] = first[:, component]
+        basis[component * count + indices, count + indices] = second[:, component]
+    return basis
+
+
 @dataclass
 class Solution:
     """Calculated bands and modes together with their sampling path.
@@ -71,6 +114,8 @@ class Solution:
         Path used by the solver.
     wn : numpy.ndarray, shape (n_k, n_bands)
         Unscaled eigen-wavenumbers ``omega / c``, ordered low to high.
+        Lossy materials give complex frequencies, sorted by real part and then
+        imaginary part. With ``exp(-i omega t)``, passive loss has Im(wn) < 0.
     modes : list of numpy.ndarray
         Eigenvectors at each sampled wave vector, with one mode per column.
     pol : str, optional
@@ -121,10 +166,11 @@ class Solver1D:
         _validate_inputs(self.geo, self.path, (self.P,), self.pol)
         self.wn = []
         self.modes = []
-        self.eps_rc = convmat(self.geo.eps_r, self.P)
-        self.mu_rc = convmat(self.geo.mu_r, self.P)
-        mu_rci = convmat(1 / self.geo.mu_r, self.P)
-        eps_rci = convmat(1 / self.geo.eps_r, self.P)
+        eps_r, mu_r, hermitian = _material_samples(self.geo)
+        self.eps_rc = convmat(eps_r, self.P)
+        self.mu_rc = convmat(mu_r, self.P)
+        mu_rci = convmat(1 / mu_r, self.P)
+        eps_rci = convmat(1 / eps_r, self.P)
 
         p = harmonic_indices(self.P)
         G_k = p * self.path.b1[0]
@@ -141,8 +187,8 @@ class Solver1D:
                 A = KX @ eps_rci @ KX
                 B = self.mu_rc
 
-            D, V = eigh(A, B)
-            self.wn.append(np.sqrt(np.maximum(D, 0)))
+            frequencies, V = _eigenpairs(A, B, hermitian)
+            self.wn.append(frequencies)
             self.modes.append(V)
 
         return Solution(self.path, np.stack(self.wn), self.modes.copy(), self.pol)
@@ -187,10 +233,11 @@ class Solver2D:
         _validate_inputs(self.geo, self.path, (self.P, self.Q), self.pol)
         self.wn = []
         self.modes = []
-        self.eps_rc = convmat(self.geo.eps_r, self.P, self.Q)
-        self.mu_rc = convmat(self.geo.mu_r, self.P, self.Q)
+        eps_r, mu_r, hermitian = _material_samples(self.geo)
+        self.eps_rc = convmat(eps_r, self.P, self.Q)
+        self.mu_rc = convmat(mu_r, self.P, self.Q)
 
-        mu_rci = convmat(1 / self.geo.mu_r, self.P, self.Q)
+        mu_rci = convmat(1 / mu_r, self.P, self.Q)
         if self.pol != "TM":
             # Factorize epsilon before truncating its reciprocal. This
             # inverse rule converges much faster for TE modes at sharp
@@ -219,9 +266,8 @@ class Solver2D:
                 A = KX @ eps_rci @ KX + KY @ eps_rci @ KY
                 B = self.mu_rc
 
-            D, V = eigh(A, B)
-
-            self.wn.append(np.sqrt(np.maximum(D, 0)))
+            frequencies, V = _eigenpairs(A, B, hermitian)
+            self.wn.append(frequencies)
             self.modes.append(V)
 
         return Solution(self.path, np.stack(self.wn), self.modes.copy(), self.pol)
@@ -262,11 +308,12 @@ class Solver3D:
         _validate_inputs(self.geo, self.path, (self.P, self.Q, self.R))
         self.wn = []
         self.modes = []
-        self.eps_rc = convmat(self.geo.eps_r, self.P, self.Q, self.R)
-        self.mu_rc = convmat(self.geo.mu_r, self.P, self.Q, self.R)
+        eps_r, mu_r, hermitian = _material_samples(self.geo)
+        self.eps_rc = convmat(eps_r, self.P, self.Q, self.R)
+        self.mu_rc = convmat(mu_r, self.P, self.Q, self.R)
 
         eps_rk = np.kron(np.eye(3), self.eps_rc)
-        mu_ri = convmat(1 / self.geo.mu_r, self.P, self.Q, self.R)
+        mu_ri = convmat(1 / mu_r, self.P, self.Q, self.R)
         mu_rki = np.kron(np.eye(3), mu_ri)
 
         p = harmonic_indices(self.P)
@@ -298,6 +345,16 @@ class Solver3D:
             )
             A = K_V @ mu_rki @ K_V
             B = eps_rk
+
+            if not hermitian:
+                # Constrain D = epsilon E before solving so longitudinal zeros
+                # cannot be mistaken for physical complex-frequency bands.
+                basis = _transverse_basis(k)
+                electric_basis = solve(B, basis)
+                frequencies, V = _eigenpairs(-basis.T @ A @ electric_basis, None, False)
+                self.wn.append(frequencies)
+                self.modes.append(electric_basis @ V)
+                continue
 
             D, V = eigh(A, B)
 

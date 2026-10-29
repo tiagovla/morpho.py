@@ -199,6 +199,7 @@ def plot_bands(
     ax=None,
     *,
     lattice_constant=None,
+    component="real",
     **kwargs,
 ):
     """Plot solved bands and any gaps that remain open along the path.
@@ -216,6 +217,8 @@ def plot_bands(
         Reference length ``a`` for normalized frequency ``omega a / (2 pi c)``.
         Default to the length of the first direct lattice vector. Supply the
         conventional period when it differs, such as for an fcc primitive cell.
+    component : {"real", "imag"}, default="real"
+        Frequency component to draw. Lossy results have no gap shading.
     **kwargs
         Line style options passed to Matplotlib.
 
@@ -226,6 +229,8 @@ def plot_bands(
     """
     import matplotlib.pyplot as plt
 
+    if component not in ("real", "imag"):
+        raise ValueError("component must be 'real' or 'imag'.")
     solutions = solution if isinstance(solution, (list, tuple)) else [solution]
     if not solutions:
         raise ValueError("At least one solution is required.")
@@ -249,6 +254,7 @@ def plot_bands(
     ):
         raise ValueError("lattice_constant must be a positive finite length.")
     frequency_scale = lattice_constant / (2 * np.pi)
+    lossy = any(np.any(np.imag(result.wn)) for result in solutions)
     band_sets = []
     gaps = None
     for result in solutions:
@@ -268,7 +274,8 @@ def plot_bands(
             raise ValueError(
                 "Solution bands must be finite with one row per path sample."
             )
-        bands = result.wn[:, :n_bands] * frequency_scale
+        frequencies = result.wn.real if component == "real" else result.wn.imag
+        bands = frequencies[:, :n_bands] * frequency_scale
         band_sets.append(bands)
 
         solver_gaps = []
@@ -293,6 +300,8 @@ def plot_bands(
                 )
             ]
 
+    if lossy or component == "imag":
+        gaps = []
     if ax is None:
         _, ax = plt.subplots()
 
@@ -313,7 +322,14 @@ def plot_bands(
     ax.set_xticklabels(point_names)
     ax.set_xlim(0.0, point_locations[-1])
     ax.set_xlabel(r"Bloch wave vector $k$")
-    ax.set_ylabel(r"Normalized frequency $\omega a / (2\pi c)$")
+    if component == "imag":
+        ax.set_ylabel(
+            r"Imaginary normalized frequency $\mathrm{Im}(\omega a / (2\pi c))$"
+        )
+    elif lossy:
+        ax.set_ylabel(r"Real normalized frequency $\mathrm{Re}(\omega a / (2\pi c))$")
+    else:
+        ax.set_ylabel(r"Normalized frequency $\omega a / (2\pi c)$")
     ax.grid(True, alpha=0.25)
     if labels:
         ax.legend(frameon=False)
