@@ -71,7 +71,7 @@ def main():
         eps_r[air] = 1.0
 
     solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, R=pwe_order)
-    solution = solver.run()
+    solution = solver.run(n_bands=32, store_modes=False)
 
     _, axis = plt.subplots(figsize=(6, 5), tight_layout=True)
     plot_bands(solution, n_bands=32, ax=axis, lattice_constant=a, lw=0.8)

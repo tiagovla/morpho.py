@@ -81,6 +81,15 @@ Pass multiple polarizations together with
 
 ::: morpho.solver.Solver3D
 
+`solver.run(n_bands=4, store_modes=False)` computes only the four lowest bands
+for real, positive materials and skips eigenvector calculation and storage.
+`solution.modes` and `solver.modes` are empty in this mode. The defaults still
+calculate all physical bands and retain their modes. `n_bands` must be a positive
+integer no greater than the retained physical band count (`P`, `P * Q`, or
+`2 * P * Q * R`). For general complex eigenproblems, band selection follows a
+full eigenvalue solve; frequency-only runs still skip eigenvectors. In 3D the
+longitudinal null modes are excluded from the returned physical band count.
+
 Solvers reject invalid polarization labels (use exactly `"TM"` or `"TE"`),
 nonpositive or noninteger harmonic counts, and incompatible geometry/path
 lattices. Each material-grid dimension needs at least `2 * harmonics - 1`

@@ -19,7 +19,9 @@ from morpho import Solver
 
 previous = None
 for count in (5, 9, 13):
-    solution = Solver(geometry, path, P=count, Q=count, pol="TE").run()
+    solution = Solver(geometry, path, P=count, Q=count, pol="TE").run(
+        n_bands=4, store_modes=False
+    )
     bands = solution.wn[:, :4] * np.linalg.norm(path.a1) / (2 * np.pi)
     if previous is not None:
         print(count, np.max(np.abs(bands - previous)))

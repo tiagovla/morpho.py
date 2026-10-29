@@ -34,7 +34,7 @@ def main():
         eps_r[rod_x | rod_y | rod_z] = eps_rod
 
     solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, R=pwe_order)
-    solution = solver.run()
+    solution = solver.run(store_modes=False)
 
     _, axis = plt.subplots(figsize=(5, 4), tight_layout=True)
     plot_bands(solution, ax=axis, lw=0.8)

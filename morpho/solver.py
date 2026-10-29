@@ -73,15 +73,29 @@ def _material_samples(geometry):
     return eps_r, mu_r, hermitian
 
 
-def _eigenpairs(A, B, hermitian):
+def _validate_run_options(n_bands, store_modes, available):
+    if n_bands is not None and (
+        not isinstance(n_bands, Integral)
+        or isinstance(n_bands, bool)
+        or not 1 <= n_bands <= available
+    ):
+        raise ValueError(f"n_bands must be an integer between 1 and {available}.")
+    if not isinstance(store_modes, bool):
+        raise ValueError("store_modes must be a boolean.")
+
+
+def _eigenpairs(A, B, hermitian, n_bands=None, store_modes=True):
     if not hermitian:
-        values, vectors = eig(A, B)
+        result = eig(A, B, right=store_modes)
+        values, vectors = result if store_modes else (result, None)
         if not np.isfinite(values).all():
             raise ValueError("The material eigenproblem has nonfinite eigenvalues.")
         frequencies = np.sqrt(values.astype(complex))
-        order = np.lexsort((frequencies.imag, frequencies.real))
-        return frequencies[order], vectors[:, order]
-    values, vectors = eigh(A, B)
+        order = np.lexsort((frequencies.imag, frequencies.real))[:n_bands]
+        return frequencies[order], vectors[:, order] if store_modes else None
+    subset = (0, n_bands - 1) if n_bands is not None else None
+    result = eigh(A, B, eigvals_only=not store_modes, subset_by_index=subset)
+    values, vectors = result if store_modes else (result, None)
     return np.sqrt(np.maximum(values, 0)), vectors
 
 
@@ -118,6 +132,7 @@ class Solution:
         imaginary part. With ``exp(-i omega t)``, passive loss has Im(wn) < 0.
     modes : list of numpy.ndarray
         Eigenvectors at each sampled wave vector, with one mode per column.
+        Empty when ``run(store_modes=False)`` is used.
     pol : str, optional
         Polarization label for 1D and 2D solutions. Vectorial 3D solutions
         have no polarization label.
@@ -161,9 +176,16 @@ class Solver1D:
         self.wn: List[np.ndarray] = []
         self.modes: List[np.ndarray] = []
 
-    def run(self) -> Solution:
-        """Calculate bands and modes and return a solution containing the path."""
+    def run(self, *, n_bands=None, store_modes=True) -> Solution:
+        """Calculate the lowest ``n_bands``; optionally skip eigenvectors.
+
+        By default, return all bands and modes. Lossless materials use a partial
+        eigensolve when ``n_bands`` is supplied. General complex eigenproblems
+        compute the full spectrum before selecting bands by real frequency.
+        With ``store_modes=False``, do not compute or retain eigenvectors.
+        """
         _validate_inputs(self.geo, self.path, (self.P,), self.pol)
+        _validate_run_options(n_bands, store_modes, self.P)
         self.wn = []
         self.modes = []
         eps_r, mu_r, hermitian = _material_samples(self.geo)
@@ -178,18 +200,18 @@ class Solver1D:
 
         for col in range(beta.shape[1]):
             k = beta[0, col] - G_k
-            KX = np.diag(k)
 
             if self.pol == "TM":
-                A = KX @ mu_rci @ KX
+                A = k[:, None] * mu_rci * k[None, :]
                 B = self.eps_rc
             else:
-                A = KX @ eps_rci @ KX
+                A = k[:, None] * eps_rci * k[None, :]
                 B = self.mu_rc
 
-            frequencies, V = _eigenpairs(A, B, hermitian)
+            frequencies, V = _eigenpairs(A, B, hermitian, n_bands, store_modes)
             self.wn.append(frequencies)
-            self.modes.append(V)
+            if store_modes:
+                self.modes.append(V)
 
         return Solution(self.path, np.stack(self.wn), self.modes.copy(), self.pol)
 
@@ -228,9 +250,16 @@ class Solver2D:
         self.wn: List[np.ndarray] = []
         self.modes: List[np.ndarray] = []
 
-    def run(self) -> Solution:
-        """Calculate bands and modes and return a solution containing the path."""
+    def run(self, *, n_bands=None, store_modes=True) -> Solution:
+        """Calculate the lowest ``n_bands``; optionally skip eigenvectors.
+
+        By default, return all bands and modes. Lossless materials use a partial
+        eigensolve when ``n_bands`` is supplied. General complex eigenproblems
+        compute the full spectrum before selecting bands by real frequency.
+        With ``store_modes=False``, do not compute or retain eigenvectors.
+        """
         _validate_inputs(self.geo, self.path, (self.P, self.Q), self.pol)
+        _validate_run_options(n_bands, store_modes, self.P * self.Q)
         self.wn = []
         self.modes = []
         eps_r, mu_r, hermitian = _material_samples(self.geo)
@@ -256,19 +285,19 @@ class Solver2D:
         for col in range(beta.shape[1]):
             k = beta[:, col, None] - G_k
 
-            KX = np.diag(k[0, :])
-            KY = np.diag(k[1, :])
+            metric = k.T @ k
 
             if self.pol == "TM":
-                A = KX @ mu_rci @ KX + KY @ mu_rci @ KY
+                A = mu_rci * metric
                 B = self.eps_rc
             else:
-                A = KX @ eps_rci @ KX + KY @ eps_rci @ KY
+                A = eps_rci * metric
                 B = self.mu_rc
 
-            frequencies, V = _eigenpairs(A, B, hermitian)
+            frequencies, V = _eigenpairs(A, B, hermitian, n_bands, store_modes)
             self.wn.append(frequencies)
-            self.modes.append(V)
+            if store_modes:
+                self.modes.append(V)
 
         return Solution(self.path, np.stack(self.wn), self.modes.copy(), self.pol)
 
@@ -303,9 +332,17 @@ class Solver3D:
         self.wn: List[np.ndarray] = []
         self.modes: List[np.ndarray] = []
 
-    def run(self) -> Solution:
-        """Calculate bands and modes and return a solution containing the path."""
+    def run(self, *, n_bands=None, store_modes=True) -> Solution:
+        """Calculate the lowest ``n_bands``; optionally skip eigenvectors.
+
+        By default, return all bands and modes. Lossless materials use a partial
+        eigensolve when ``n_bands`` is supplied. General complex eigenproblems
+        compute the full spectrum before selecting bands by real frequency.
+        With ``store_modes=False``, do not compute or retain eigenvectors.
+        """
         _validate_inputs(self.geo, self.path, (self.P, self.Q, self.R))
+        n_harmonics = self.P * self.Q * self.R
+        _validate_run_options(n_bands, store_modes, 2 * n_harmonics)
         self.wn = []
         self.modes = []
         eps_r, mu_r, hermitian = _material_samples(self.geo)
@@ -314,7 +351,6 @@ class Solver3D:
 
         eps_rk = np.kron(np.eye(3), self.eps_rc)
         mu_ri = convmat(1 / mu_r, self.P, self.Q, self.R)
-        mu_rki = np.kron(np.eye(3), mu_ri)
 
         p = harmonic_indices(self.P)
         q = harmonic_indices(self.Q)
@@ -333,17 +369,19 @@ class Solver3D:
         for col in range(beta.shape[1]):
             k = beta[:, col, None] - G_k
 
-            KX = np.diag(k[0, :])
-            KY = np.diag(k[1, :])
-            KZ = np.diag(k[2, :])
-            K_V = np.vstack(
-                (
-                    np.hstack((0 * KX, -KZ, KY)),
-                    np.hstack((KZ, 0 * KY, -KX)),
-                    np.hstack((-KY, KX, 0 * KZ)),
-                )
+            metric = k.T @ k
+            # Expand curl mu^-1 curl by component to avoid dense products
+            # with diagonal wave-vector blocks.
+            A = np.block(
+                [
+                    [
+                        mu_ri
+                        * (k[j, :, None] * k[i, None, :] - (metric if i == j else 0))
+                        for j in range(3)
+                    ]
+                    for i in range(3)
+                ]
             )
-            A = K_V @ mu_rki @ K_V
             B = eps_rk
 
             if not hermitian:
@@ -351,24 +389,32 @@ class Solver3D:
                 # cannot be mistaken for physical complex-frequency bands.
                 basis = _transverse_basis(k)
                 electric_basis = solve(B, basis)
-                frequencies, V = _eigenpairs(-basis.T @ A @ electric_basis, None, False)
+                frequencies, V = _eigenpairs(
+                    -basis.T @ A @ electric_basis, None, False, n_bands, store_modes
+                )
                 self.wn.append(frequencies)
-                self.modes.append(electric_basis @ V)
+                if store_modes:
+                    self.modes.append(electric_basis @ V)
                 continue
-
-            D, V = eigh(A, B)
 
             # The curl-curl operator has one longitudinal null mode per
             # retained reciprocal vector. Drop those N zero eigenvalues;
             # at Gamma the two physical zero-frequency modes remain.
-            n_harmonics = KX.shape[0]
-            D = D[:-n_harmonics]
-            V = V[:, :-n_harmonics]
+            count = n_bands if n_bands is not None else 2 * n_harmonics
+            last = 2 * n_harmonics - 1
+            result = eigh(
+                A,
+                B,
+                eigvals_only=not store_modes,
+                subset_by_index=(last - count + 1, last),
+            )
+            D, V = result if store_modes else (result, None)
 
             # eigh returns the negative eigenvalues from most negative to
             # least negative, so reverse to report frequencies low to high.
             self.wn.append(np.sqrt(np.maximum(-D, 0))[::-1])
-            self.modes.append(V[:, ::-1])
+            if store_modes:
+                self.modes.append(V[:, ::-1].copy())
 
         return Solution(self.path, np.stack(self.wn), self.modes.copy())
 

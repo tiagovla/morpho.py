@@ -32,8 +32,8 @@ def main():
 
     tm_solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, pol="TM")
     te_solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, pol="TE")
-    tm_solution = tm_solver.run()
-    te_solution = te_solver.run()
+    tm_solution = tm_solver.run(n_bands=4, store_modes=False)
+    te_solution = te_solver.run(n_bands=4, store_modes=False)
 
     _, axis = plt.subplots(figsize=(7, 5), tight_layout=True)
     plot_bands((tm_solution, te_solution), n_bands=4, ax=axis, lw=1.4)
