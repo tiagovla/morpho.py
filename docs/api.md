@@ -51,7 +51,7 @@ callbacks. Frequency-only runs omit the material snapshot.
 
 ::: morpho.fields.reconstruct_fields
 
-::: morpho.fields.plot_field
+::: morpho.plotting.plot_field
 
 See the [field reconstruction guide](fields.md) for spatial conventions,
 normalization, static modes, and 3D slices.

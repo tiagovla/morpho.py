@@ -1,5 +1,8 @@
 """Matplotlib helpers for Brillouin zones and band structures."""
 
+from numbers import Integral
+from .fields import Fields
+
 import numpy as np
 from numpy.linalg import norm
 
@@ -274,4 +277,105 @@ def plot_bands(
     ax.grid(True, alpha=0.25)
     if labels:
         ax.legend(frameon=False)
+    return ax
+
+
+def plot_field(
+    fields,
+    *,
+    field="E",
+    component="intensity",
+    part="real",
+    ax=None,
+    slice_axis=2,
+    slice_index=None,
+    **kwargs,
+):
+    """Plot a field profile, a 2D map, or a planar slice through a 3D cell.
+
+    Parameters
+    ----------
+    fields : Fields
+        Output of ``reconstruct_fields``.
+    field : {"E", "H"}, default="E"
+        Electric field or impedance-scaled magnetic field.
+    component : {"intensity", "x", "y", "z"}, default="intensity"
+        Squared vector magnitude, or a Cartesian component.
+    part : {"real", "imag", "abs"}, default="real"
+        Component representation; ignored for intensity maps.
+    ax : matplotlib.axes.Axes, optional
+        Axes to draw on; create axes when omitted.
+    slice_axis : int, default=2
+        Lattice-grid direction held fixed for a 3D slice.
+    slice_index : int, optional
+        Slice sample index; default to the middle grid sample.
+    **kwargs
+        Styling passed to ``plot`` in 1D or ``pcolormesh`` in 2D and 3D.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes containing the field profile or map. Maps include a colorbar.
+    """
+    if not isinstance(fields, Fields):
+        raise TypeError("Pass the Fields returned by reconstruct_fields().")
+    if (
+        field not in ("E", "H")
+        or component not in ("intensity", "x", "y", "z")
+        or part not in ("real", "imag", "abs")
+    ):
+        raise ValueError(
+            "Choose field E/H, component intensity/x/y/z, and part real/imag/abs."
+        )
+    values = getattr(fields, field)
+    dimension = values.ndim - 1
+    if component == "intensity":
+        values = np.sum(np.abs(values) ** 2, axis=-1)
+        label = f"|{field}|²"
+    else:
+        values = values[..., ("x", "y", "z").index(component)]
+        values = np.abs(values) if part == "abs" else getattr(values, part)
+        label = f"{part}({field}_{component})"
+    positions = tuple(vars(fields.coordinates).values())
+    labels = ("x", "y")
+    if dimension == 3:
+        if (
+            not isinstance(slice_axis, Integral)
+            or isinstance(slice_axis, bool)
+            or not 0 <= slice_axis < 3
+        ):
+            raise ValueError("slice_axis must be 0, 1, or 2.")
+        if slice_index is None:
+            slice_index = values.shape[slice_axis] // 2
+        if (
+            not isinstance(slice_index, Integral)
+            or isinstance(slice_index, bool)
+            or not 0 <= slice_index < values.shape[slice_axis]
+        ):
+            raise ValueError("slice_index must select an existing grid sample.")
+        values = np.take(values, slice_index, axis=slice_axis)
+        positions = np.stack(
+            [np.take(position, slice_index, axis=slice_axis) for position in positions],
+            axis=-1,
+        )
+        first, second = np.delete(fields.lattice_vectors, slice_axis, axis=0)
+        first = first / np.linalg.norm(first)
+        second = second - np.dot(first, second) * first
+        second /= np.linalg.norm(second)
+        positions = (positions @ first, positions @ second)
+        labels = ("u (distance in slice)", "v (distance in slice)")
+    import matplotlib.pyplot as plt
+
+    if ax is None:
+        _, ax = plt.subplots()
+    if dimension == 1:
+        ax.plot(positions[0], values, **kwargs)
+        ax.set_ylabel(label)
+    else:
+        style = {"shading": "auto", **kwargs}
+        artist = ax.pcolormesh(*positions, values, **style)
+        ax.figure.colorbar(artist, ax=ax, label=label)
+        ax.set_ylabel(labels[1])
+        ax.set_aspect("equal")
+    ax.set_xlabel(labels[0])
     return ax

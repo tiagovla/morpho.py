@@ -9,9 +9,9 @@ from morpho.brillouinzone import (
 )
 from morpho.geometry import Geometry, Geometry1D, Geometry2D, Geometry3D
 from morpho.solver import Solution, Solver, Solver1D, Solver2D, Solver3D
-from morpho.plotting import plot_bands, plot_brillouin_zone
+from morpho.plotting import plot_bands, plot_brillouin_zone, plot_field
 from morpho.bands import BandGap, find_band_gaps
-from morpho.fields import Fields, plot_field, reconstruct_fields
+from morpho.fields import Fields, reconstruct_fields
 from morpho.sampling import BlochPoints, brillouin_zone_mesh
 
 __all__ = [
