@@ -7,6 +7,7 @@ hooks:
 nav:
   - Home: index.md
   - Quick start: quickstart.md
+  - Numerical accuracy: numerics.md
   - API reference: api.md
   - Examples: examples.md
   - References: references.md
