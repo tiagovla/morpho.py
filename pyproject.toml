@@ -1,6 +1,6 @@
 [project]
 name = "morpho.py"
-version = "0.2.2"
+version = "0.2.3"
 description = "PWE framework for photonic crystal analysis"
 license = "GPL-3.0-or-later"
 authors = [{name = "Tiago Vilela", email = "tiagovla@gmail.com"}]
