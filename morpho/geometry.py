@@ -10,7 +10,11 @@ import numpy as np
 
 
 class GeometryBase(ABC):
-    """Base Geometry class."""
+    """Base Geometry class.
+
+    Material callbacks start from a fresh background of one on every access.
+    Without a callback, material arrays can be edited directly and persist.
+    """
 
     def __init__(self, eps_rf: Optional[Callable], mu_rf: Optional[Callable]):
         self.eps_rf: Optional[Callable] = eps_rf or None
@@ -30,6 +34,19 @@ class GeometryBase(ABC):
             setattr(self, func.__name__, func)
         else:
             raise Exception("Can only overwrite eps_rf or mu_rf.")
+
+    def _sample_material(self, name):
+        values = getattr(self, f"_{name}")
+        callback = getattr(self, f"{name}f")
+        if callback:
+            sampled = np.ones_like(values)
+            coordinates = vars(self.X)
+            if name == "eps_r":
+                callback(eps_r=sampled, **coordinates)
+            else:
+                callback(sampled, **coordinates)
+            values[:] = sampled
+        return values
 
 
 class Geometry1D(GeometryBase):
@@ -70,16 +87,12 @@ class Geometry1D(GeometryBase):
     @property
     def eps_r(self) -> np.ndarray:
         """Return the relative permittivity profile."""
-        if self.eps_rf:
-            self.eps_rf(eps_r=self._eps_r, x=self.X.x)
-        return self._eps_r
+        return self._sample_material("eps_r")
 
     @property
     def mu_r(self) -> np.ndarray:
         """Return the relative permeability profile."""
-        if self.mu_rf:
-            self.mu_rf(self._mu_r, x=self.X.x)
-        return self._mu_r
+        return self._sample_material("mu_r")
 
 
 class Geometry2D(GeometryBase):
@@ -135,16 +148,12 @@ class Geometry2D(GeometryBase):
     @property
     def eps_r(self) -> np.ndarray:
         """Return the relative permittivity matrice."""
-        if self.eps_rf:
-            self.eps_rf(eps_r=self._eps_r, x=self.X.x, y=self.X.y)
-        return self._eps_r
+        return self._sample_material("eps_r")
 
     @property
     def mu_r(self) -> np.ndarray:
         """Return the relative permeabillity matrice."""
-        if self.mu_rf:
-            self.mu_rf(self._mu_r, x=self.X.x, y=self.X.y)
-        return self._mu_r
+        return self._sample_material("mu_r")
 
 
 class Geometry3D(GeometryBase):
@@ -210,16 +219,12 @@ class Geometry3D(GeometryBase):
     @property
     def eps_r(self) -> np.ndarray:
         """Return the relative permittivity matrice."""
-        if self.eps_rf:
-            self.eps_rf(eps_r=self._eps_r, x=self.X.x, y=self.X.y, z=self.X.z)
-        return self._eps_r
+        return self._sample_material("eps_r")
 
     @property
     def mu_r(self) -> np.ndarray:
         """Return the relative permeabillity matrice."""
-        if self.mu_rf:
-            self.mu_rf(self._mu_r, x=self.X.x, y=self.X.y, z=self.X.z)
-        return self._mu_r
+        return self._sample_material("mu_r")
 
 
 def Geometry(*args, **kwargs) -> Union[Geometry1D, Geometry2D, Geometry3D]:

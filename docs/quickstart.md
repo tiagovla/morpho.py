@@ -47,7 +47,11 @@ plt.show()
 ```
 
 `Geometry` starts with relative permittivity and permeability equal to one. The
-`eps_rf` callback overwrites the values inside the rods. `Solver.run()` returns
+`eps_rf` callback overwrites the values inside the rods. Every callback evaluation
+starts from ones, so changing a radius also clears the previous inclusion.
+Callbacks must set any other background explicitly. With no callback, edits to
+`geometry.eps_r` and `geometry.mu_r` persist between accesses.
+`Solver.run()` returns
 a `Solution` containing its path, raw $\omega/c$ values in `solution.wn`,
 eigenvectors in `solution.modes`, and polarization in `solution.pol`. The
 existing `solver.wn` and `solver.modes` attributes remain available.
