@@ -13,6 +13,7 @@ from .brillouinzone import BrillouinZonePath2D as BZPath2D
 from .brillouinzone import BrillouinZonePath3D as BZPath3D
 from .brillouinzone import BlochVectors, BrillouinZonePathBase
 from .geometry import Geometry, Geometry1D, Geometry2D, Geometry3D
+from .sampling import BlochPoints
 from .utils import convmat, harmonic_indices
 
 
@@ -23,10 +24,10 @@ def _validate_inputs(geometry, path, counts, pol=None):
         harmonic_indices(count)
     dimension = len(counts)
     if not isinstance(geometry, (Geometry1D, Geometry2D, Geometry3D)) or not isinstance(
-        path, BrillouinZonePathBase
+        path, (BrillouinZonePathBase, BlochPoints)
     ):
         raise ValueError(
-            "Pass a Geometry and a BrillouinZonePath of the same dimension."
+            "Pass a Geometry and a path or BlochPoints of the same dimension."
         )
     if path.dim != dimension or geometry.a1.shape != (dimension,):
         raise ValueError(
@@ -44,6 +45,8 @@ def _validate_inputs(geometry, path, counts, pol=None):
         raise ValueError("Lattice vectors must be finite and linearly independent.")
     if not np.array_equal(geometry_basis, basis):
         raise ValueError("Geometry and path must use the same lattice vectors.")
+    if isinstance(path, BlochPoints):
+        return
     if len(path.path_points) < 2 or any(
         point.point.shape != (dimension,)
         or not np.isfinite(point.point).all()
@@ -146,8 +149,8 @@ class Solution:
 
     Parameters
     ----------
-    path : BrillouinZonePathBase
-        Independent snapshot of the path used by the solver.
+    path : BrillouinZonePathBase or BlochPoints
+        Independent snapshot of the path or unordered samples used by the solver.
     wn : numpy.ndarray, shape (n_k, n_bands)
         Unscaled eigen-wavenumbers ``omega / c``, ordered low to high.
         Lossy materials give complex frequencies, sorted by real part and then
@@ -165,7 +168,7 @@ class Solution:
         were stored. Contains sampled arrays, with no callbacks attached.
     """
 
-    path: BrillouinZonePathBase
+    path: Union[BrillouinZonePathBase, BlochPoints]
     wn: np.ndarray
     modes: List[np.ndarray]
     pol: Optional[str] = None
@@ -179,7 +182,8 @@ class Solution:
         self.path = deepcopy(self.path)
         self._betas = self.path.betas
         self._betas.values.setflags(write=False)
-        self._betas.cumsum.setflags(write=False)
+        if self._betas.cumsum is not None:
+            self._betas.cumsum.setflags(write=False)
 
     @property
     def wave_vectors(self) -> np.ndarray:
@@ -189,6 +193,10 @@ class Solution:
     @property
     def path_distance(self) -> np.ndarray:
         """Return cumulative wave-vector distance at each sampled path point."""
+        if self._betas.cumsum is None:
+            raise ValueError(
+                "Unordered Bloch samples have no path distance; use find_band_gaps for bulk spectra."
+            )
         return self._betas.cumsum
 
 
@@ -219,14 +227,18 @@ class Solver1D:
     ----------
     geometry : Geometry
         geometry
-    path : BrillouinZonePath
-        A BrillouinZonePath object.
+    path : BrillouinZonePath or BlochPoints
+        A symmetry path or arbitrary Bloch-vector batch.
     P : int
         Number of terms in the direction of the reciprocal vector b1.
     """
 
     def __init__(
-        self, geometry: Geometry1D, path: BZPath1D, P: int = 1, pol: str = "TM"
+        self,
+        geometry: Geometry1D,
+        path: Union[BZPath1D, BlochPoints],
+        P: int = 1,
+        pol: str = "TM",
     ):
         """Initialize the PWE Solver."""
         self.geo = geometry
@@ -286,8 +298,8 @@ class Solver2D:
     ----------
     geometry : Geometry
         geometry
-    path : BrillouinZonePath
-        A BrillouinZonePath object.
+    path : BrillouinZonePath or BlochPoints
+        A symmetry path or arbitrary Bloch-vector batch.
     P : int
         Number of terms in the direction of the reciprocal vector b1.
     Q : int
@@ -297,7 +309,7 @@ class Solver2D:
     def __init__(
         self,
         geometry: Geometry2D,
-        path: BZPath2D,
+        path: Union[BZPath2D, BlochPoints],
         P: int = 1,
         Q: int = 1,
         pol: str = "TM",
@@ -372,8 +384,8 @@ class Solver3D:
     ----------
     geometry : Geometry
         geometry
-    path : BrillouinZonePath
-        A BrillouinZonePath object.
+    path : BrillouinZonePath or BlochPoints
+        A symmetry path or arbitrary Bloch-vector batch.
     P : int
         Number of terms in the direction of the reciprocal vector b1.
     Q : int
@@ -383,7 +395,12 @@ class Solver3D:
     """
 
     def __init__(
-        self, geometry: Geometry3D, path: BZPath3D, P: int = 1, Q: int = 1, R: int = 1
+        self,
+        geometry: Geometry3D,
+        path: Union[BZPath3D, BlochPoints],
+        P: int = 1,
+        Q: int = 1,
+        R: int = 1,
     ):
         """Initialize the PWE Solver."""
         self.geo = geometry
@@ -492,6 +509,6 @@ class Solver3D:
 
 
 def Solver(geometry, path, *args, **kwargs) -> Union[Solver1D, Solver2D, Solver3D]:
-    """Solver factory."""
+    """Select a solver from the dimension of a symmetry path or Bloch points."""
     dim_obj = {1: Solver1D, 2: Solver2D, 3: Solver3D}
     return dim_obj[path.dim](geometry, path, *args, **kwargs)

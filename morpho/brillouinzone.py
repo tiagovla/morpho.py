@@ -11,10 +11,14 @@ from numpy.linalg import norm
 
 @dataclass
 class BlochVectors:
-    """Represents a data structure of Bloch wave vectors."""
+    """Cartesian Bloch vectors and optional distances along a symmetry path.
+
+    ``values`` has shape ``(dimension, n_samples)``. ``cumsum`` contains path
+    distances for ordered paths and is ``None`` for unordered Bloch samples.
+    """
 
     values: np.ndarray
-    cumsum: np.ndarray
+    cumsum: Optional[np.ndarray] = None
 
 
 class SymmetryPoint:

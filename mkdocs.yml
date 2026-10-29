@@ -9,6 +9,7 @@ nav:
   - Quick start: quickstart.md
   - Numerical accuracy: numerics.md
   - Electromagnetic fields: fields.md
+  - Brillouin-zone sampling: bulk.md
   - API reference: api.md
   - Examples: examples.md
   - References: references.md

@@ -12,6 +12,7 @@ from morpho.solver import Solution, Solver, Solver1D, Solver2D, Solver3D
 from morpho.plotting import plot_bands, plot_brillouin_zone
 from morpho.bands import BandGap, find_band_gaps
 from morpho.fields import Fields, plot_field, reconstruct_fields
+from morpho.sampling import BlochPoints, brillouin_zone_mesh
 
 __all__ = [
     "__version__",
@@ -20,6 +21,8 @@ __all__ = [
     "Fields",
     "reconstruct_fields",
     "plot_field",
+    "BlochPoints",
+    "brillouin_zone_mesh",
     "BrillouinZonePath",
     "BrillouinZonePath1D",
     "BrillouinZonePath2D",

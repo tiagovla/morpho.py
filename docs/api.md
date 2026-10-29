@@ -14,6 +14,17 @@
 
 ::: morpho.brillouinzone.BrillouinZonePath3D
 
+## Bulk Bloch samples
+
+::: morpho.sampling.BlochPoints
+
+::: morpho.sampling.brillouin_zone_mesh
+
+Pass a `BlochPoints` batch or reciprocal-cell mesh to `Solver` in place of a
+symmetry path. `find_band_gaps` then uses every supplied sample, and stored modes
+support field reconstruction. See [Brillouin-zone sampling](bulk.md) for
+coordinates, mesh layout, gap convergence, and density-of-states estimates.
+
 ## Solutions
 
 ::: morpho.solver.Solution
@@ -24,9 +35,11 @@ calculation; previously returned results keep their calculated data.
 ``solution.path_distance`` returns the cumulative wave-vector distance at each
 sample. ``solution.wave_vectors`` contains the Cartesian sampling coordinates
 with shape `(dimension, number_of_samples)`. Both arrays are read-only snapshots.
-The result owns a copy of the input path, including its lattice, labels, and
-symmetry points, so later edits to the original path do not change existing
+The result owns a copy of the input sampling, including its lattice and any
+path labels and symmetry points. Later edits to the input do not change existing
 results or their plots. Consequently, `solution.path is path` is false.
+For unordered samples, use `solution.wave_vectors`; `path_distance` and
+`plot_bands` require an ordered symmetry path.
 
 With modes retained, `solution.harmonics` stores the expansion counts and
 `solution.geometry` stores independent, read-only material arrays without

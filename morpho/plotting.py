@@ -4,6 +4,7 @@ import numpy as np
 from numpy.linalg import norm
 
 from .bands import _find_band_gaps, _prepare_bands
+from .sampling import BlochPoints
 
 
 def plot_brillouin_zone(
@@ -13,8 +14,9 @@ def plot_brillouin_zone(
 
     Parameters
     ----------
-    path : BrillouinZonePath2D or BrillouinZonePath3D
-        Path whose reciprocal lattice vectors define the zone.
+    path : BrillouinZonePath2D, BrillouinZonePath3D, or BlochPoints
+        Sampling whose reciprocal lattice vectors define the zone. Unordered
+        Bloch points are shown as a scatter plot without connecting lines.
     ax : matplotlib.axes.Axes or mpl_toolkits.mplot3d.axes3d.Axes3D, optional
         Axes to draw on, or the parent band axes when ``inset=True``.
         Create suitable axes when omitted.
@@ -152,7 +154,9 @@ def plot_brillouin_zone(
         ax.set_ylabel(r"$k_y$")
         ax.set_zlabel(r"$k_z$")
 
-    if path.path_points:
+    if isinstance(path, BlochPoints):
+        ax.scatter(*path.betas.values, color="black", s=3 if inset else 8)
+    elif path.path_points:
         points = (
             np.stack([point.point for point in path.path_points]) @ reciprocal_basis.T
         )
@@ -207,6 +211,8 @@ def plot_bands(
     solution : Solution or sequence of Solution
         Results returned by ``Solver.run()``. Multiple solutions must use the
         same path; only gaps shared by all supplied solutions are shaded.
+        Unordered Bloch samples have no path distance and cannot be drawn as
+        band paths; use ``find_band_gaps`` to analyze their spectra.
     n_bands : int, optional
         Number of lowest bands to plot. Plot all bands when omitted.
     ax : matplotlib.axes.Axes, optional

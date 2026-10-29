@@ -45,5 +45,6 @@ The choice of basis inside this static subspace is not unique.
 
 Band gaps inferred from a symmetry path apply only to that sampled path.
 Establishing a complete gap requires checking the relevant Brillouin-zone
-interior as well. Complex-frequency lossy spectra do not define conventional
-real-frequency band gaps.
+interior as well; see [Brillouin-zone sampling](bulk.md) for reciprocal-cell
+meshes and finite-grid gap estimates. Complex-frequency lossy spectra do not
+define conventional real-frequency band gaps.

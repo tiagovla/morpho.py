@@ -17,9 +17,9 @@ class BandGap:
     Parameters
     ----------
     lower : float
-        Maximum frequency of the lower band on the sampled path.
+        Maximum frequency of the lower band over the supplied Bloch samples.
     upper : float
-        Minimum frequency of the upper band on the sampled path.
+        Minimum frequency of the upper band over the supplied Bloch samples.
     """
 
     lower: float
@@ -57,11 +57,21 @@ def _prepare_bands(solution, n_bands, lattice_constant):
     for result in solutions:
         if result.path is not path and (
             not np.array_equal(result.wave_vectors, wave_vectors)
-            or not np.array_equal(result.path.point_locations, path.point_locations)
-            or result.path.point_names != path.point_names
-            or norm(result.path.a1) != norm(path.a1)
+            or result.path.dim != path.dim
+            or any(
+                not np.array_equal(
+                    getattr(result.path, f"a{i + 1}"), getattr(path, f"a{i + 1}")
+                )
+                for i in range(path.dim)
+            )
+            or not np.array_equal(
+                getattr(result.path, "point_locations", None),
+                getattr(path, "point_locations", None),
+            )
+            or getattr(result.path, "point_names", None)
+            != getattr(path, "point_names", None)
         ):
-            raise ValueError("All solutions must use the same path.")
+            raise ValueError("All solutions must use the same path or Bloch samples.")
         if (
             result.wn.ndim != 2
             or result.wn.shape[0] != wave_vectors.shape[1]
@@ -72,7 +82,7 @@ def _prepare_bands(solution, n_bands, lattice_constant):
         ):
             raise ValueError(
                 "Solution bands must be finite, nonnegative, ordered by real "
-                "frequency, with one row per path sample."
+                "frequency, with one row per Bloch sample."
             )
         band_sets.append(result.wn * lattice_constant / (2 * np.pi))
     return solutions, band_sets
@@ -114,7 +124,7 @@ def find_band_gaps(solution, n_bands=None, *, lattice_constant=None) -> List[Ban
     Parameters
     ----------
     solution : Solution or sequence of Solution
-        One result, or multiple polarizations sampled on the same path.
+        One result, or multiple polarizations using the same path or Bloch points.
     n_bands : int, optional
         Use the lowest requested number of bands; default to all stored bands.
     lattice_constant : float, optional
@@ -125,8 +135,9 @@ def find_band_gaps(solution, n_bands=None, *, lattice_constant=None) -> List[Ban
     list of BandGap
         Gaps between adjacent retained bands, ordered low to high. Each gap
         has normalized ``lower`` and ``upper`` edges and a fractional
-        ``gap_to_midgap_ratio``. A gap on a sampled path does not establish a
-        complete gap over the Brillouin zone. Lossy spectra are rejected.
+        ``gap_to_midgap_ratio``. Results apply only to the supplied samples;
+        meshes give finite-grid estimates, not a proof of a complete gap.
+        Lossy spectra are rejected.
     """
     _, band_sets = _prepare_bands(solution, n_bands, lattice_constant)
     return _find_band_gaps(band_sets, n_bands)
