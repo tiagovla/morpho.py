@@ -317,5 +317,5 @@ def plot_bands(
     ax.set_ylabel(r"Normalized frequency $\omega a / (2\pi c)$")
     ax.grid(True, alpha=0.25)
     if labels:
-        ax.legend()
+        ax.legend(frameon=False)
     return ax
