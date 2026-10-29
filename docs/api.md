@@ -28,6 +28,21 @@ The result owns a copy of the input path, including its lattice, labels, and
 symmetry points, so later edits to the original path do not change existing
 results or their plots. Consequently, `solution.path is path` is false.
 
+With modes retained, `solution.harmonics` stores the expansion counts and
+`solution.geometry` stores independent, read-only material arrays without
+callbacks. Frequency-only runs omit the material snapshot.
+
+## Electromagnetic fields
+
+::: morpho.fields.Fields
+
+::: morpho.fields.reconstruct_fields
+
+::: morpho.fields.plot_field
+
+See the [field reconstruction guide](fields.md) for spatial conventions,
+normalization, static modes, and 3D slices.
+
 ## Plotting
 
 ::: morpho.plotting.plot_brillouin_zone

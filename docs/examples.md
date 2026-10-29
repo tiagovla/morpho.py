@@ -5,6 +5,15 @@ gaps shared by the displayed polarizations along the sampled symmetry path.
 The Brillouin-zone inset shows the lattice's reciprocal cell and the path.
 The fcc examples use the conventional cubic period for $a$.
 
+## Electromagnetic mode fields
+
+These maps show electric and impedance-scaled magnetic intensities for the
+first TM and TE bands at X in the square lattice of alumina rods.
+
+![Electric and magnetic mode intensities](assets/square_lattice_fields.png)
+
+See [electromagnetic fields](fields.md) for reconstruction and normalization.
+
 ## Two-dimensional square lattice of dielectric rods
 
 This example models alumina rods in air on a square lattice. The lattice

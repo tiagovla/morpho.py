@@ -11,11 +11,15 @@ from morpho.geometry import Geometry, Geometry1D, Geometry2D, Geometry3D
 from morpho.solver import Solution, Solver, Solver1D, Solver2D, Solver3D
 from morpho.plotting import plot_bands, plot_brillouin_zone
 from morpho.bands import BandGap, find_band_gaps
+from morpho.fields import Fields, plot_field, reconstruct_fields
 
 __all__ = [
     "__version__",
     "BandGap",
     "find_band_gaps",
+    "Fields",
+    "reconstruct_fields",
+    "plot_field",
     "BrillouinZonePath",
     "BrillouinZonePath1D",
     "BrillouinZonePath2D",

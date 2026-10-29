@@ -3,7 +3,7 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 from numbers import Integral
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from scipy.linalg import eig, eigh, solve
@@ -11,8 +11,8 @@ from scipy.linalg import eig, eigh, solve
 from .brillouinzone import BrillouinZonePath1D as BZPath1D
 from .brillouinzone import BrillouinZonePath2D as BZPath2D
 from .brillouinzone import BrillouinZonePath3D as BZPath3D
-from .brillouinzone import BrillouinZonePathBase
-from .geometry import Geometry1D, Geometry2D, Geometry3D
+from .brillouinzone import BlochVectors, BrillouinZonePathBase
+from .geometry import Geometry, Geometry1D, Geometry2D, Geometry3D
 from .utils import convmat, harmonic_indices
 
 
@@ -158,13 +158,22 @@ class Solution:
     pol : str, optional
         Polarization label for 1D and 2D solutions. Vectorial 3D solutions
         have no polarization label.
+    harmonics : tuple of int, optional
+        Retained harmonic counts in each lattice direction.
+    geometry : GeometryBase, optional
+        Material snapshot used for field reconstruction, present when modes
+        were stored. Contains sampled arrays, with no callbacks attached.
     """
 
     path: BrillouinZonePathBase
     wn: np.ndarray
     modes: List[np.ndarray]
     pol: Optional[str] = None
-    _betas: object = field(init=False, repr=False)
+    harmonics: Optional[Tuple[int, ...]] = None
+    geometry: Optional[Union[Geometry1D, Geometry2D, Geometry3D]] = field(
+        default=None, repr=False
+    )
+    _betas: BlochVectors = field(init=False, repr=False)
 
     def __post_init__(self):
         self.path = deepcopy(self.path)
@@ -181,6 +190,26 @@ class Solution:
     def path_distance(self) -> np.ndarray:
         """Return cumulative wave-vector distance at each sampled path point."""
         return self._betas.cumsum
+
+
+def _make_solution(solver, eps_r, mu_r, counts):
+    geometry = None
+    if solver.modes:
+        vectors = [getattr(solver.geo, f"a{index + 1}") for index in range(len(counts))]
+        geometry = Geometry(*vectors, *eps_r.shape)
+        geometry._eps_r, geometry._mu_r = eps_r, mu_r
+        for values in (geometry._eps_r, geometry._mu_r):
+            values.setflags(write=False)
+        for index in range(len(counts)):
+            getattr(geometry, f"a{index + 1}").setflags(write=False)
+    return Solution(
+        solver.path,
+        np.stack(solver.wn),
+        solver.modes.copy(),
+        getattr(solver, "pol", None),
+        tuple(counts),
+        geometry,
+    )
 
 
 class Solver1D:
@@ -247,7 +276,7 @@ class Solver1D:
             if store_modes:
                 self.modes.append(V)
 
-        return Solution(self.path, np.stack(self.wn), self.modes.copy(), self.pol)
+        return _make_solution(self, eps_r, mu_r, (self.P,))
 
 
 class Solver2D:
@@ -333,7 +362,7 @@ class Solver2D:
             if store_modes:
                 self.modes.append(V)
 
-        return Solution(self.path, np.stack(self.wn), self.modes.copy(), self.pol)
+        return _make_solution(self, eps_r, mu_r, (self.P, self.Q))
 
 
 class Solver3D:
@@ -459,7 +488,7 @@ class Solver3D:
                 self.modes.append(modes)
             self.wn.append(frequencies)
 
-        return Solution(self.path, np.stack(self.wn), self.modes.copy())
+        return _make_solution(self, eps_r, mu_r, (self.P, self.Q, self.R))
 
 
 def Solver(geometry, path, *args, **kwargs) -> Union[Solver1D, Solver2D, Solver3D]:
