@@ -183,11 +183,11 @@ def plot_field(
     dimension = values.ndim - 1
     if component == "intensity":
         values = np.sum(np.abs(values) ** 2, axis=-1)
-        label = f"|{field}|² (arbitrary units)"
+        label = f"|{field}|²"
     else:
         values = values[..., ("x", "y", "z").index(component)]
         values = np.abs(values) if part == "abs" else getattr(values, part)
-        label = f"{part}({field}_{component}) (arbitrary units)"
+        label = f"{part}({field}_{component})"
     positions = tuple(vars(fields.coordinates).values())
     labels = ("x", "y")
     if dimension == 3:
