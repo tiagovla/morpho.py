@@ -60,3 +60,17 @@ def test_imaginary_component_does_not_shade_lossless_gaps():
     assert not axis.patches
     np.testing.assert_array_equal(axis.lines[0].get_ydata(), [0.0, 0.0])
     plt.close(axis.figure)
+
+
+def test_plot_uses_original_sampling_after_input_path_changes():
+    path = BrillouinZonePath(
+        (1.0,), [SymmetryPoint((0.0,), "Γ"), SymmetryPoint((0.5,), "X")], n_points=2
+    )
+    result = Solution(path, np.array([[1.0, 4.0], [2.0, 3.0]]), [])
+    path.n_points = 13
+    path.path_points[-1].name = "changed"
+    axis = plot_bands(result)
+    assert len(axis.lines[0].get_xdata()) == 2
+    assert [label.get_text() for label in axis.get_xticklabels()] == ["Γ", "X"]
+    assert len(find_band_gaps(result)) == 1
+    plt.close(axis.figure)

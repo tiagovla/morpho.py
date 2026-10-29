@@ -43,6 +43,7 @@ def _prepare_bands(solution, n_bands, lattice_constant):
         raise ValueError("n_bands must be a positive integer.")
 
     path = solutions[0].path
+    wave_vectors = solutions[0].wave_vectors
     if lattice_constant is None:
         lattice_constant = norm(path.a1)
     if (
@@ -55,7 +56,7 @@ def _prepare_bands(solution, n_bands, lattice_constant):
     band_sets = []
     for result in solutions:
         if result.path is not path and (
-            not np.array_equal(result.path.betas.values, path.betas.values)
+            not np.array_equal(result.wave_vectors, wave_vectors)
             or not np.array_equal(result.path.point_locations, path.point_locations)
             or result.path.point_names != path.point_names
             or norm(result.path.a1) != norm(path.a1)
@@ -63,7 +64,7 @@ def _prepare_bands(solution, n_bands, lattice_constant):
             raise ValueError("All solutions must use the same path.")
         if (
             result.wn.ndim != 2
-            or result.wn.shape[0] != len(path.betas.cumsum)
+            or result.wn.shape[0] != wave_vectors.shape[1]
             or result.wn.shape[1] == 0
             or not np.isfinite(result.wn).all()
             or np.any(result.wn.real < 0)

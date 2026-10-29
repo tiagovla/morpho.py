@@ -22,7 +22,11 @@ Every solver's ``run()`` method returns a ``Solution`` containing its path,
 eigen-wavenumbers, modes, and polarization. Reusing a solver starts a fresh
 calculation; previously returned results keep their calculated data.
 ``solution.path_distance`` returns the cumulative wave-vector distance at each
-sample, equivalent to ``solution.path.betas.cumsum``.
+sample. ``solution.wave_vectors`` contains the Cartesian sampling coordinates
+with shape `(dimension, number_of_samples)`. Both arrays are read-only snapshots.
+The result owns a copy of the input path, including its lattice, labels, and
+symmetry points, so later edits to the original path do not change existing
+results or their plots. Consequently, `solution.path is path` is false.
 
 ## Plotting
 

@@ -26,7 +26,8 @@ def test_solver_returns_independent_solution(dimension, polarization):
     solution = solver.run()
 
     assert isinstance(solution, Solution)
-    assert solution.path is path
+    assert solution.path is not path
+    np.testing.assert_array_equal(solution.wave_vectors, path.betas.values)
     assert solution.pol == polarization
     np.testing.assert_allclose(solution.path_distance, [0.0, np.pi / 2, np.pi])
     band_count = 2 if dimension == 3 else 1
@@ -45,6 +46,32 @@ def test_solver_returns_independent_solution(dimension, polarization):
     np.testing.assert_allclose(solution.wn[:, 0], expected, atol=1e-12)
     assert len(solver.wn) == len(next_solution.modes) == len(solution.modes) == 3
     assert next_solution.modes is not solution.modes
+
+
+def test_solution_keeps_sampling_after_input_path_is_edited():
+    vectors = np.eye(2)
+    points = [SymmetryPoint((0.0, 0.0), "Γ"), SymmetryPoint((0.5, 0.0), "X")]
+    path = BrillouinZonePath(*vectors, points, n_points=3)
+    solution = Solver(Geometry(*vectors, 7, 7), path, P=3, Q=3).run(n_bands=3)
+    wave_vectors = solution.wave_vectors.copy()
+    distance = solution.path_distance.copy()
+    locations = solution.path.point_locations.copy()
+    path.n_points = 17
+    path.points_per_segment = 5
+    path.a1[:] *= 2
+    points[0].point[:] = 0.1
+    points[0].name = "changed"
+    path.path_points.append(SymmetryPoint((0.5, 0.5), "M"))
+    np.testing.assert_array_equal(solution.wave_vectors, wave_vectors)
+    np.testing.assert_array_equal(solution.path_distance, distance)
+    np.testing.assert_array_equal(solution.path.betas.values, wave_vectors)
+    np.testing.assert_array_equal(solution.path.point_locations, locations)
+    assert solution.path.point_names == ["Γ", "X"]
+    assert solution.wn.shape[0] == len(solution.path_distance) == 3
+    with pytest.raises(ValueError):
+        solution.wave_vectors[0, 0] = 1
+    with pytest.raises(ValueError):
+        solution.path_distance[0] = 1
 
 
 @pytest.mark.parametrize(

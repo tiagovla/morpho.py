@@ -1,6 +1,7 @@
 """Implement 3D/2D solvers."""
 
-from dataclasses import dataclass
+from copy import deepcopy
+from dataclasses import dataclass, field
 from numbers import Integral
 from typing import List, Optional, Union
 
@@ -146,7 +147,7 @@ class Solution:
     Parameters
     ----------
     path : BrillouinZonePathBase
-        Path used by the solver.
+        Independent snapshot of the path used by the solver.
     wn : numpy.ndarray, shape (n_k, n_bands)
         Unscaled eigen-wavenumbers ``omega / c``, ordered low to high.
         Lossy materials give complex frequencies, sorted by real part and then
@@ -163,11 +164,23 @@ class Solution:
     wn: np.ndarray
     modes: List[np.ndarray]
     pol: Optional[str] = None
+    _betas: object = field(init=False, repr=False)
+
+    def __post_init__(self):
+        self.path = deepcopy(self.path)
+        self._betas = self.path.betas
+        self._betas.values.setflags(write=False)
+        self._betas.cumsum.setflags(write=False)
+
+    @property
+    def wave_vectors(self) -> np.ndarray:
+        """Return the sampled Cartesian wave vectors, shape ``(dim, n_k)``."""
+        return self._betas.values
 
     @property
     def path_distance(self) -> np.ndarray:
         """Return cumulative wave-vector distance at each sampled path point."""
-        return self.path.betas.cumsum
+        return self._betas.cumsum
 
 
 class Solver1D:
