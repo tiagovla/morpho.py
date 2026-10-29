@@ -4,9 +4,27 @@ import os
 import sys
 from pathlib import Path
 
+from matplotlib import cycler, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import FigureManagerBase, _Backend
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+
+rcParams["axes.prop_cycle"] = cycler(
+    "color",
+    [
+        "#1f78b4",
+        "#d73027",
+        "#1b9e77",
+        "#d95f02",
+        "#e6ab02",
+        "#a6761d",
+        "#66a61e",
+        "#666666",
+        "#b2df8a",
+        "#7570b3",
+    ],
+)
 
 
 class _SaveBackend(_Backend):

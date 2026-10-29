@@ -299,13 +299,12 @@ def plot_bands(
     for lower, upper in gaps or []:
         ax.axhspan(lower, upper, color="#ffe600", alpha=0.8, zorder=0)
 
-    colors = {"TM": "tab:blue", "TE": "tab:red"}
     labels = []
-    for result, bands in zip(solutions, band_sets):
+    for index, (result, bands) in enumerate(zip(solutions, band_sets)):
         style = dict(kwargs)
         label = style.pop("label", result.pol)
         if "color" not in style and "c" not in style:
-            style["color"] = colors.get(result.pol, "black")
+            style["color"] = f"C{index}"
         lines = ax.plot(path_distance, bands, **style)
         if label:
             lines[0].set_label(label)
