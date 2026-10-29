@@ -64,13 +64,6 @@ plot_brillouin_zone(
 plt.show()
 ```
 
-`Solver.run()` returns a `Solution` containing its path, eigen-wavenumbers,
-modes, and polarization. `plot_bands(solution)` normalizes frequencies, labels
-the path, and shades gaps. For multiple solutions, it shades only their shared
-gaps along the sampled path.
-`plot_brillouin_zone(..., ax=axis, inset=True)` adds a transparent zone inset
-inside the band plot.
-
 <p align="center">
   <img src="https://tiagovla.github.io/morpho.py/assets/square_lattice_dielectric_rods.png" alt="TM and TE band structure for alumina rods on a square lattice" width="720">
 </p>
