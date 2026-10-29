@@ -8,7 +8,7 @@ The fcc examples use the conventional cubic period for $a$.
 ## Electromagnetic mode fields
 
 These maps show electric and impedance-scaled magnetic intensities for the
-first TM and TE bands at X in the square lattice of alumina rods.
+first TM band at X in the square lattice of alumina rods.
 
 ![Electric and magnetic mode intensities](assets/square_lattice_fields.png)
 

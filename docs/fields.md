@@ -1,15 +1,29 @@
 # Electromagnetic fields
 
-Compute a solution with modes retained, then reconstruct a selected band at a
-selected Bloch-vector sample:
+This 2D square lattice has alumina rods with radius `0.2a` and relative
+permittivity 8.9 in air. Reconstruct its first TM band at X and plot the electric
+and magnetic field intensities side by side:
 
 ```python
-from morpho import reconstruct_fields, plot_field
+import matplotlib.pyplot as plt
+from morpho import BlochPoints, Geometry, Solver, reconstruct_fields, plot_field
 
-solution = solver.run(n_bands=4)
-fields = reconstruct_fields(solution, sample=1, band=0)
-plot_field(fields)
-plot_field(fields, field="H", component="y", part="real")
+a1, a2 = (1.0, 0.0), (0.0, 1.0)
+sampling = BlochPoints(a1, a2, points=[(0.5, 0.0)])
+
+def eps_rf(eps_r, x, y):
+    eps_r[x**2 + y**2 <= 0.2**2] = 8.9
+
+geometry = Geometry(a1, a2, 65, 65, eps_rf=eps_rf)
+solution = Solver(geometry, sampling, P=7, Q=7, pol="TM").run(n_bands=1)
+fields = reconstruct_fields(solution)
+
+_, axes = plt.subplots(1, 2, figsize=(9, 4), tight_layout=True)
+plot_field(fields, field="E", ax=axes[0], cmap="magma")
+plot_field(fields, field="H", ax=axes[1], cmap="magma")
+axes[0].set_title("TM at X: electric field |E|²")
+axes[1].set_title("TM at X: magnetic field |Z₀H|²")
+plt.show()
 ```
 
 Sample and band indices start at zero. `fields.E` and `fields.H` are complex
