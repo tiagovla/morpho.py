@@ -37,7 +37,7 @@ def main():
     solution = solver.run()
 
     _, axis = plt.subplots(figsize=(5, 4), tight_layout=True)
-    plot_bands(solution, ax=axis, color="black", lw=0.8)
+    plot_bands(solution, ax=axis, color="navy", lw=0.8)
     zone_axis = plot_brillouin_zone(
         solution.path, ax=axis, inset=True, inset_bounds=(0.0, 0.01, 0.30, 0.27)
     )
