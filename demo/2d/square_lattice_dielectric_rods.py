@@ -23,12 +23,12 @@ def main():
     symmetry_points = [Gamma, X, M, Gamma]
 
     path = BZPath(a1, a2, symmetry_points, points_per_segment=points_per_segment)
-    geometry = Geometry(a1, a2, n_grid, n_grid)
 
-    @geometry.overwrite
     def eps_rf(eps_r, x, y):
         mask = x**2 + y**2 <= radius**2
         eps_r[mask] = eps_rod
+
+    geometry = Geometry(a1, a2, n_grid, n_grid, eps_rf=eps_rf)
 
     tm_solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, pol="TM")
     te_solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, pol="TE")

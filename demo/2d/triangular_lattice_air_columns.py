@@ -23,9 +23,7 @@ def main():
     M = SPoint((0.5, 0.0), "M")
     K = SPoint((1 / 3, 1 / 3), "K")
     path = BZPath(a1, a2, [Gamma, M, K, Gamma], points_per_segment=points_per_segment)
-    geometry = Geometry(a1, a2, n_grid, n_grid)
 
-    @geometry.overwrite
     def eps_rf(eps_r, x, y):
         eps_r[:] = eps_dielectric
         distance_squared = np.full(x.shape, np.inf)
@@ -39,6 +37,8 @@ def main():
                 )
         air_columns = distance_squared <= radius**2
         eps_r[air_columns] = 1.0
+
+    geometry = Geometry(a1, a2, n_grid, n_grid, eps_rf=eps_rf)
 
     tm_solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, pol="TM")
     te_solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, pol="TE")

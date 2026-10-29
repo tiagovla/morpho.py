@@ -23,15 +23,14 @@ def main():
     T = SPoint((0.5, 0.0, 0.5), "T")
     path = BZPath(a1, a2, a3, [D, Z, Gamma, Z, T, X], points_per_segment=40)
 
-    geometry = Geometry(a1, a2, a3, n_grid, n_grid, n_grid)
-
-    @geometry.overwrite
     def eps_rf(eps_r, x, y, z):
         edge = a / 2 - rod_width / 2
         rod_x = (np.abs(y) >= edge) & (np.abs(z) >= edge)
         rod_y = (np.abs(x) >= edge) & (np.abs(z) >= edge)
         rod_z = (np.abs(x) >= edge) & (np.abs(y) >= edge)
         eps_r[rod_x | rod_y | rod_z] = eps_rod
+
+    geometry = Geometry(a1, a2, a3, n_grid, n_grid, n_grid, eps_rf=eps_rf)
 
     solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, R=pwe_order)
     solution = solver.run(store_modes=False)

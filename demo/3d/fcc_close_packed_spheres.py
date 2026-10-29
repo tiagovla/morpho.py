@@ -61,12 +61,12 @@ def main():
     pwe_order = 7
     radius = a / (2 * np.sqrt(2))
     eps_sphere = 13.0
-    geometry = Geometry(a1, a2, a3, n_grid, n_grid, n_grid)
 
-    @geometry.overwrite
     def eps_rf(eps_r, x, y, z):
         sphere = periodic_sphere_mask(x, y, z, (a1, a2, a3), radius, ((0.0, 0.0, 0.0),))
         eps_r[sphere] = eps_sphere
+
+    geometry = Geometry(a1, a2, a3, n_grid, n_grid, n_grid, eps_rf=eps_rf)
 
     solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, R=pwe_order)
     solution = solver.run(n_bands=64, store_modes=False)

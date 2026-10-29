@@ -27,11 +27,11 @@ m_point = SymmetryPoint((0.5, 0.5), "M")
 path = BrillouinZonePath(
     a1, a2, [gamma, x_point, m_point, gamma], points_per_segment=40
 )
-geometry = Geometry(a1, a2, 65, 65)
 
-@geometry.overwrite
 def eps_rf(eps_r, x, y):
     eps_r[x**2 + y**2 <= radius**2] = eps_rod
+
+geometry = Geometry(a1, a2, 65, 65, eps_rf=eps_rf)
 
 tm = Solver(geometry, path, P=7, Q=7, pol="TM")
 te = Solver(geometry, path, P=7, Q=7, pol="TE")
@@ -47,8 +47,9 @@ plt.show()
 ```
 
 `Geometry` starts with relative permittivity and permeability equal to one. The
-`eps_rf` callback overwrites the values inside the rods. Every callback evaluation
-starts from ones, so changing a radius also clears the previous inclusion.
+`eps_rf` constructor argument supplies the callback that overwrites values inside
+the rods. Every callback evaluation starts from ones, so changing a radius also
+clears the previous inclusion.
 Callbacks must set any other background explicitly. With no callback, edits to
 `geometry.eps_r` and `geometry.mu_r` persist between accesses.
 `Solver.run()` returns

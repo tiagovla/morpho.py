@@ -62,13 +62,13 @@ def main():
     radius = 0.325 * a
     eps_dielectric = 13.0
     basis = ((0.0, 0.0, 0.0), (a / 4, a / 4, a / 4))
-    geometry = Geometry(a1, a2, a3, n_grid, n_grid, n_grid)
 
-    @geometry.overwrite
     def eps_rf(eps_r, x, y, z):
         eps_r[:] = eps_dielectric
         air = periodic_sphere_mask(x, y, z, (a1, a2, a3), radius, basis)
         eps_r[air] = 1.0
+
+    geometry = Geometry(a1, a2, a3, n_grid, n_grid, n_grid, eps_rf=eps_rf)
 
     solver = Solver(geometry, path, P=pwe_order, Q=pwe_order, R=pwe_order)
     solution = solver.run(n_bands=32, store_modes=False)
