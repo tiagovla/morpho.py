@@ -7,12 +7,13 @@ hooks:
 
 nav:
   - Home: index.md
-  - Quick start: quickstart.md
-  - Numerical accuracy: numerics.md
-  - Electromagnetic fields: fields.md
-  - Brillouin-zone sampling: bulk.md
+  - Guides:
+      - Numerical accuracy: numerics.md
+      - Electromagnetic fields: fields.md
+      - Brillouin-zone sampling: bulk.md
   - API reference: api.md
   - Examples: examples.md
+  - Coverage: coverage.md
   - References: references.md
 
 theme:
@@ -24,7 +25,6 @@ theme:
     primary: blue
     accent: cyan
   features:
-    - navigation.sections
     - content.code.copy
 
 plugins:

@@ -6,4 +6,6 @@ docs/assets/*.png
 build/
 dist/
 .coverage
+coverage.xml
+htmlcov/
 matlab/

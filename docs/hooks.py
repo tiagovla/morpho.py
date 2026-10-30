@@ -1,13 +1,18 @@
-"""Generate demo figures before MkDocs collects documentation assets."""
+"""Generate demo figures and coverage for the documentation site."""
 
+import json
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
+
+_coverage_markdown = ""
 
 
 def on_pre_build(config) -> None:
-    """Run every demo with the PNG-saving Matplotlib backend."""
+    """Run demos and tests before MkDocs renders the site."""
+    global _coverage_markdown
     root = Path(config.config_file_path).resolve().parent
     docs = root / "docs"
     env = os.environ.copy()
@@ -36,3 +41,47 @@ def on_pre_build(config) -> None:
             continue
         print(f"Generating figure for {demo.relative_to(root)}", flush=True)
         subprocess.run([sys.executable, str(demo)], cwd=root, env=env, check=True)
+
+    with tempfile.TemporaryDirectory() as directory:
+        report = Path(directory) / "coverage.json"
+        subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "--cov=morpho",
+                "--cov-report=term-missing",
+                f"--cov-report=json:{report}",
+            ],
+            cwd=root,
+            check=True,
+        )
+        coverage = json.loads(report.read_text())
+
+    totals = coverage["totals"]
+    rows = [
+        "# Coverage",
+        "",
+        f"**Total: {totals['percent_covered_display']}%** "
+        f"({totals['num_statements']} statements, {totals['missing_lines']} missed).",
+        "",
+        "| File | Statements | Missed | Coverage |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+    for name, result in sorted(coverage["files"].items()):
+        summary = result["summary"]
+        rows.append(
+            f"| `{name}` | {summary['num_statements']} | "
+            f"{summary['missing_lines']} | {summary['percent_covered_display']}% |"
+        )
+    rows.extend(["", "## Missing lines", ""])
+    for name, result in sorted(coverage["files"].items()):
+        if result["missing_lines"]:
+            rows.append(f"- `{name}`: {', '.join(map(str, result['missing_lines']))}")
+    _coverage_markdown = "\n".join(rows)
+
+
+def on_page_markdown(markdown, page, config, files):
+    """Render the coverage page with the MkDocs theme."""
+    if page.file.src_uri == "coverage.md":
+        return _coverage_markdown
