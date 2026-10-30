@@ -10,11 +10,17 @@ Start with the [quick start](#quick-start) below, browse the
 
 ## Install
 
-Add the package to a [uv](https://docs.astral.sh/uv/) project:
+Requires Python 3.9 or newer. Install with pip:
 
 ```console
-uv add morpho.py
+pip install morpho.py
 ```
+
+??? note "Install in a uv project"
+
+    ```console
+    uv add morpho.py
+    ```
 
 ## Source code
 

@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://pypi.org/project/morpho.py/"><img src="https://img.shields.io/pypi/v/morpho.py" alt="PyPI version"></a>
-  <a href="https://pypi.org/project/morpho.py/"><img src="https://img.shields.io/badge/Python-3.9--3.15-3776AB?logo=python&amp;logoColor=white" alt="Python 3.9-3.15"></a>
+  <a href="https://pypi.org/project/morpho.py/"><img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&amp;logoColor=white" alt="Python 3.9 or newer"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/tiagovla/morpho.py" alt="License"></a>
   <a href="https://tiagovla.github.io/morpho.py"><img src="https://img.shields.io/badge/docs-online-brightgreen" alt="Documentation"></a>
   <a href="https://tiagovla.github.io/morpho.py/coverage/"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Ftiagovla.github.io%2Fmorpho.py%2Fcoverage-badge.json" alt="Coverage"></a>
@@ -14,11 +14,20 @@ expansion (PWE) method.
 
 ## Installation
 
-The package supports Python 3.9 through 3.15. Add it to a `uv` project with:
+Requires Python 3.9 or newer. Install with pip:
+
+```console
+pip install morpho.py
+```
+
+<details>
+<summary>Install in a uv project</summary>
 
 ```console
 uv add morpho.py
 ```
+
+</details>
 
 ## Quick start: 2D square lattice
 
