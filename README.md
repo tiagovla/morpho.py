@@ -1,11 +1,13 @@
 ![morpho.py banner](docs/assets/banner.svg)
 
-[![PyPI version](https://img.shields.io/pypi/v/morpho.py)](https://pypi.org/project/morpho.py/)
-[![Python 3.9-3.15](https://img.shields.io/badge/Python-3.9--3.15-3776AB?logo=python&logoColor=white)](https://pypi.org/project/morpho.py/)
-[![License](https://img.shields.io/github/license/tiagovla/morpho.py)](LICENSE)
-[![Documentation](https://img.shields.io/badge/docs-online-brightgreen)](https://tiagovla.github.io/morpho.py)
-[![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Ftiagovla.github.io%2Fmorpho.py%2Fcoverage-badge.json)](https://tiagovla.github.io/morpho.py/coverage/)
-[![DOI](https://zenodo.org/badge/341691173.svg)](https://zenodo.org/badge/latestdoi/341691173)
+<p align="center">
+  <a href="https://pypi.org/project/morpho.py/"><img src="https://img.shields.io/pypi/v/morpho.py" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/morpho.py/"><img src="https://img.shields.io/badge/Python-3.9--3.15-3776AB?logo=python&amp;logoColor=white" alt="Python 3.9-3.15"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/tiagovla/morpho.py" alt="License"></a>
+  <a href="https://tiagovla.github.io/morpho.py"><img src="https://img.shields.io/badge/docs-online-brightgreen" alt="Documentation"></a>
+  <a href="https://tiagovla.github.io/morpho.py/coverage/"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Ftiagovla.github.io%2Fmorpho.py%2Fcoverage-badge.json" alt="Coverage"></a>
+  <a href="https://zenodo.org/badge/latestdoi/341691173"><img src="https://zenodo.org/badge/341691173.svg" alt="DOI"></a>
+</p>
 
 `morpho.py` computes photonic crystal band structures with the plane-wave
 expansion (PWE) method.
