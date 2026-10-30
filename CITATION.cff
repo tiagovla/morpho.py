@@ -3,7 +3,7 @@ title: morpho.py
 authors:
   - family-names: Amorim
     given-names: Tiago Vilela Lima
-version: 0.2.4
+version: 0.2.5
 url: https://github.com/tiagovla/morpho.py
 repository-code: https://github.com/tiagovla/morpho.py
 license: GPL-3.0-or-later
