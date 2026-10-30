@@ -1,73 +1,41 @@
-<?xml version='1.0' encoding='utf-8'?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 520" role="img" aria-labelledby="banner-title banner-description">
-  <title id="banner-title">morpho.py - plane-wave expansion for photonic crystals</title>
-  <desc id="banner-description">A photonic-crystal band diagram beside a wordmark that uses the morpho.py logo as its initial m.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 440" role="img" aria-labelledby="banner-title banner-description">
+  <title id="banner-title">morpho.py</title>
+  <desc id="banner-description">morpho.py logo and wordmark on a dark blue background, with the subtitle Plane-wave expansion for photonic crystals.</desc>
   <defs>
-    <linearGradient id="banner-background" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#07152f" />
-      <stop offset="0.55" stop-color="#0a1d42" />
-      <stop offset="1" stop-color="#111d4c" />
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#08172c" />
+      <stop offset="1" stop-color="#102b4c" />
     </linearGradient>
-    <radialGradient id="banner-glow" cx="0.8" cy="0.45" r="0.7">
-      <stop offset="0" stop-color="#2478ff" stop-opacity="0.24" />
-      <stop offset="1" stop-color="#2478ff" stop-opacity="0" />
+    <radialGradient id="glow" cx="0.86" cy="0.18" r="0.8">
+      <stop stop-color="#2572ad" stop-opacity="0.16" />
+      <stop offset="1" stop-color="#2572ad" stop-opacity="0" />
     </radialGradient>
-    <radialGradient id="logo-glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#267ecb" stop-opacity="0.28" />
-      <stop offset="1" stop-color="#267ecb" stop-opacity="0" />
-    </radialGradient>
-    <pattern id="dot-grid" width="30" height="30" patternUnits="userSpaceOnUse">
-      <circle cx="2" cy="2" r="1.1" fill="#a6c9ff" opacity="0.16" />
-    </pattern>
+    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#16e6f4" />
+      <stop offset=".48" stop-color="#2478ff" />
+      <stop offset="1" stop-color="#b93aff" />
+    </linearGradient>
+    <linearGradient id="rod" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#12cffa" />
+      <stop offset=".5" stop-color="#1958bb" />
+      <stop offset="1" stop-color="#452087" />
+    </linearGradient>
   </defs>
-  <rect width="1600" height="520" rx="34" fill="url(#banner-background)" />
-  <rect width="1600" height="520" rx="34" fill="url(#banner-glow)" />
-  <path d="M 720 520 C 955 430, 1040 510, 1225 380 S 1450 375, 1600 265 L 1600 520 Z" fill="#16346a" opacity="0.34" />
-  <path d="M 760 520 C 1020 462, 1125 520, 1300 422 S 1500 425, 1600 355 L 1600 520 Z" fill="#0c6da5" opacity="0.2" />
-  <rect x="960" y="58" width="590" height="390" rx="24" fill="url(#dot-grid)" opacity="0.5" />
-  <ellipse cx="150" cy="155" rx="96" ry="96" fill="url(#logo-glow)" />
-  <svg x="80" y="116" width="140" height="123" viewBox="100 150 800 680" role="img" aria-label="morpho.py logo mark used as the initial m">
-    <defs>
-      <linearGradient id="wave" x1="0" y1="0" x2="1" y2="1">
-        <stop stop-color="#16e6f4" />
-        <stop offset=".48" stop-color="#2478ff" />
-        <stop offset="1" stop-color="#b93aff" />
-      </linearGradient>
-      <linearGradient id="rod" x1="0" y1="0" x2="1" y2="1">
-        <stop stop-color="#12cffa" />
-        <stop offset=".5" stop-color="#1958bb" />
-        <stop offset="1" stop-color="#452087" />
-      </linearGradient>
-      <linearGradient id="py" x1="0" y1="0" x2="1" y2="0">
-        <stop stop-color="#11bff7" />
-        <stop offset="1" stop-color="#a52ff5" />
-      </linearGradient>
-    </defs>
+
+  <rect width="1600" height="440" rx="28" fill="url(#background)" />
+  <rect width="1600" height="440" rx="28" fill="url(#glow)" />
+  <rect x="1" y="1" width="1598" height="438" rx="27" fill="none" stroke="#315274" stroke-opacity=".6" stroke-width="2" />
+
+  <g transform="translate(240 0)">
+  <rect x="74" y="86" width="258" height="258" rx="30" fill="#0b2342" stroke="#315a80" stroke-width="2" />
+  <svg x="96" y="104" width="214" height="220" viewBox="100 150 800 680" aria-hidden="true">
     <g transform="translate(0 12)">
-      <path d="M155 195 L345 340 L500 545 L655 340 L845 195 L845 695 L655 770 L655 495 L500 690 L345 495 L345 770 L155 695Z" fill="#173f6d" opacity=".98" />
+      <path d="M155 195 L345 340 L500 545 L655 340 L845 195 L845 695 L655 770 L655 495 L500 690 L345 495 L345 770 L155 695Z" fill="#173f6d" />
       <g fill="url(#rod)" stroke="#39caff" stroke-width="3">
-        <circle cx="190" cy="260" r="35" />
-        <circle cx="190" cy="350" r="35" />
-        <circle cx="190" cy="440" r="35" />
-        <circle cx="190" cy="530" r="35" />
-        <circle cx="190" cy="620" r="35" />
-        <circle cx="190" cy="710" r="35" />
-        <circle cx="280" cy="325" r="31" />
-        <circle cx="280" cy="415" r="31" />
-        <circle cx="280" cy="505" r="31" />
-        <circle cx="280" cy="595" r="31" />
-        <circle cx="280" cy="685" r="31" />
-        <circle cx="810" cy="260" r="35" />
-        <circle cx="810" cy="350" r="35" />
-        <circle cx="810" cy="440" r="35" />
-        <circle cx="810" cy="530" r="35" />
-        <circle cx="810" cy="620" r="35" />
-        <circle cx="810" cy="710" r="35" />
-        <circle cx="720" cy="325" r="31" />
-        <circle cx="720" cy="415" r="31" />
-        <circle cx="720" cy="505" r="31" />
-        <circle cx="720" cy="595" r="31" />
-        <circle cx="720" cy="685" r="31" />
+        <circle cx="190" cy="260" r="35" /><circle cx="190" cy="350" r="35" /><circle cx="190" cy="440" r="35" /><circle cx="190" cy="530" r="35" /><circle cx="190" cy="620" r="35" /><circle cx="190" cy="710" r="35" />
+        <circle cx="280" cy="325" r="31" /><circle cx="280" cy="415" r="31" /><circle cx="280" cy="505" r="31" /><circle cx="280" cy="595" r="31" /><circle cx="280" cy="685" r="31" />
+        <circle cx="810" cy="260" r="35" /><circle cx="810" cy="350" r="35" /><circle cx="810" cy="440" r="35" /><circle cx="810" cy="530" r="35" /><circle cx="810" cy="620" r="35" /><circle cx="810" cy="710" r="35" />
+        <circle cx="720" cy="325" r="31" /><circle cx="720" cy="415" r="31" /><circle cx="720" cy="505" r="31" /><circle cx="720" cy="595" r="31" /><circle cx="720" cy="685" r="31" />
       </g>
       <g fill="none" stroke-linecap="round">
         <path d="M260 455 C365 180 430 710 535 485 S710 235 770 430" stroke="#173f6d" stroke-width="76" />
@@ -78,31 +46,9 @@
       </g>
     </g>
   </svg>
-  <text x="230" y="220" fill="#f1f6ff" font-family="Inter, DejaVu Sans, Arial, sans-serif" font-size="118" font-weight="750" letter-spacing="-5">orpho</text>
-  <text x="540" y="220" fill="#42d8f4" font-family="Inter, DejaVu Sans, Arial, sans-serif" font-size="118" font-weight="750" letter-spacing="-5">.py</text>
-  <text x="80" y="300" fill="#a9c7ee" font-family="Inter, DejaVu Sans, Arial, sans-serif" font-size="28" font-weight="500">Plane-wave expansion for photonic crystals</text>
-  <text x="80" y="350" fill="#6f91bd" font-family="Inter, DejaVu Sans, Arial, sans-serif" font-size="22" letter-spacing="2">BANDS  •  GAPS  •  PERIODIC MEDIA</text>
-  <path d="M 80 385 H 600" stroke="#2b6aa7" stroke-width="2" opacity="0.8" />
-  <rect x="780" y="90" width="790" height="320" rx="18" fill="#08142e" fill-opacity="0.63" stroke="#28456e" stroke-width="1.5" />
-  <g transform="translate(820 126)">
-    <path d="M 0 0 H 710" stroke="#294367" stroke-width="1" opacity="0.55" />
-    <path d="M 0 55 H 710" stroke="#294367" stroke-width="1" opacity="0.55" />
-    <path d="M 0 110 H 710" stroke="#294367" stroke-width="1" opacity="0.55" />
-    <path d="M 0 165 H 710" stroke="#294367" stroke-width="1" opacity="0.55" />
-    <path d="M 0 220 H 710" stroke="#294367" stroke-width="1" opacity="0.55" />
-    <path d="M 0 0 V 220" stroke="#294367" stroke-width="1" opacity="0.55" />
-    <path d="M 237 0 V 220" stroke="#294367" stroke-width="1" opacity="0.55" />
-    <path d="M 473 0 V 220" stroke="#294367" stroke-width="1" opacity="0.55" />
-    <path d="M 710 0 V 220" stroke="#294367" stroke-width="1" opacity="0.55" />
-    <path d="M 0 220 H 710 M 0 0 V 220" stroke="#91aacb" stroke-width="1.6" opacity="0.85" />
-    <path d="M 0 220 C 86 211 137 160 236 150 S 381 174 472 163 S 621 119 710 112" fill="none" stroke="#31c5ff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-    <path d="M 0 220 C 99 203 150 177 236 168 S 376 118 472 112 S 621 145 710 154" fill="none" stroke="#498cff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-    <path d="M 0 147 C 92 141 152 107 236 100 S 378 117 472 125 S 619 91 710 75" fill="none" stroke="#d35bff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-    <path d="M 0 96 C 92 111 147 132 236 138 S 378 66 472 59 S 619 89 710 102" fill="none" stroke="#ff688b" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
-    <text x="0" y="249" fill="#b7c8e0" font-family="DejaVu Sans, Arial, sans-serif" font-size="18" text-anchor="middle">Γ</text>
-    <text x="237" y="249" fill="#b7c8e0" font-family="DejaVu Sans, Arial, sans-serif" font-size="18" text-anchor="middle">X</text>
-    <text x="473" y="249" fill="#b7c8e0" font-family="DejaVu Sans, Arial, sans-serif" font-size="18" text-anchor="middle">M</text>
-    <text x="710" y="249" fill="#b7c8e0" font-family="DejaVu Sans, Arial, sans-serif" font-size="18" text-anchor="middle">Γ</text>
-    <text x="0" y="-12" fill="#7899c5" font-family="DejaVu Sans, Arial, sans-serif" font-size="13" letter-spacing="1.5">PHOTONIC BAND STRUCTURE</text>
+
+  <text x="394" y="148" fill="#7bcce3" font-family="Inter, DejaVu Sans, Arial, sans-serif" font-size="23" font-weight="600" letter-spacing="3">PHOTONIC CRYSTAL ANALYSIS</text>
+  <text x="386" y="263" fill="#f3f7fc" font-family="Inter, DejaVu Sans, Arial, sans-serif" font-size="132" font-weight="750" letter-spacing="-5">morpho<tspan fill="#59d6ed">.py</tspan></text>
+  <text x="394" y="319" fill="#aec5df" font-family="Inter, DejaVu Sans, Arial, sans-serif" font-size="34" font-weight="400">Plane-wave expansion for photonic crystals</text>
   </g>
 </svg>
