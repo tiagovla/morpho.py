@@ -16,6 +16,10 @@ Add the package to a [uv](https://docs.astral.sh/uv/) project:
 uv add morpho.py
 ```
 
+## Source code
+
+Browse the [morpho.py codebase on GitHub](https://github.com/tiagovla/morpho.py).
+
 ## Quick start
 
 This example calculates the first four TM and TE bands of alumina rods in air

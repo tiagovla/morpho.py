@@ -12,6 +12,12 @@ first TM band at X in the square lattice of alumina rods.
 
 ![Electric and magnetic mode intensities](assets/square_lattice_fields.png)
 
+??? info "View source"
+
+    ```python
+    --8<-- "demo/2d/square_lattice_fields.py"
+    ```
+
 See [electromagnetic fields](fields.md) for reconstruction and normalization.
 
 ## Two-dimensional square lattice of dielectric rods
@@ -29,6 +35,12 @@ The structure is from Chapter 5, Figure 2 of
 
 ![TM and TE bands for alumina rods on a square lattice](assets/square_lattice_dielectric_rods.png)
 
+??? info "View source"
+
+    ```python
+    --8<-- "demo/2d/square_lattice_dielectric_rods.py"
+    ```
+
 ## Two-dimensional triangular lattice of air columns
 
 This example places air columns in a dielectric substrate with relative
@@ -45,6 +57,12 @@ This structure is in Chapter 5, Figure 10 (page 76) of
 
 ![TM and TE bands for air columns on a triangular lattice](assets/triangular_lattice_air_columns.png)
 
+??? info "View source"
+
+    ```python
+    --8<-- "demo/2d/triangular_lattice_air_columns.py"
+    ```
+
 ## Three-dimensional simple-cubic dielectric rod network
 
 The unit cell has normalized lattice constant $a=1$. Dielectric rods of width
@@ -54,6 +72,12 @@ expansion uses orders $P=Q=R=3$. The band path is D–Z–$\Gamma$–Z–T–X, 
 points per segment.
 
 ![Bands for a simple-cubic dielectric rod network](assets/simple_cubic_rod_network.png)
+
+??? info "View source"
+
+    ```python
+    --8<-- "demo/3d/simple_cubic_rod_network.py"
+    ```
 
 ## Three-dimensional fcc close-packed dielectric spheres
 
@@ -70,6 +94,12 @@ This structure is in Chapter 6, Figure 2 of
 
 ![Bands for close-packed dielectric spheres on an fcc lattice](assets/fcc_close_packed_spheres.png)
 
+??? info "View source"
+
+    ```python
+    --8<-- "demo/3d/fcc_close_packed_spheres.py"
+    ```
+
 ## Three-dimensional diamond lattice of air spheres
 
 This example places overlapping air spheres in a dielectric background with
@@ -85,3 +115,9 @@ This structure is in Chapter 6, Figure 3 of
 [*Photonic Crystals: Molding the Flow of Light*](references.md).
 
 ![Bands and the second-to-third-band gap for air spheres on a diamond lattice](assets/diamond_air_spheres.png)
+
+??? info "View source"
+
+    ```python
+    --8<-- "demo/3d/diamond_air_spheres.py"
+    ```

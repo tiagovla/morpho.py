@@ -1,21 +1,19 @@
 site_name: morpho.py
 site_url: https://tiagovla.github.io/morpho.py/
 site_description: Plane-wave expansion for photonic crystal band structures
-
+not_in_nav: quickstart.md
 hooks:
   - docs/hooks.py
-
 nav:
   - Home: index.md
   - Guides:
       - Numerical accuracy: numerics.md
       - Electromagnetic fields: fields.md
       - Brillouin-zone sampling: bulk.md
-  - API reference: api.md
   - Examples: examples.md
   - Coverage: coverage.md
+  - API reference: api.md
   - References: references.md
-
 theme:
   name: material
   logo: assets/morpho-logo.svg
@@ -26,7 +24,6 @@ theme:
     accent: cyan
   features:
     - content.code.copy
-
 plugins:
   - search
   - mkdocstrings:
@@ -40,21 +37,20 @@ plugins:
             show_root_heading: true
             show_root_full_path: false
             show_source: false
-
 markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.superfences
+  - pymdownx.snippets:
+      check_paths: true
   - pymdownx.arithmatex:
       generic: true
   - toc:
       permalink: true
-
 extra_javascript:
   - javascripts/mathjax.js
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
-
 extra_css:
   - stylesheets/extra.css
