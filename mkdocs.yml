@@ -1,4 +1,5 @@
 site_name: morpho.py
+site_url: https://tiagovla.github.io/morpho.py/
 site_description: Plane-wave expansion for photonic crystal band structures
 
 hooks:
