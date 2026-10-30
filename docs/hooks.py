@@ -8,11 +8,12 @@ import tempfile
 from pathlib import Path
 
 _coverage_markdown = ""
+_coverage_badge = {}
 
 
 def on_pre_build(config) -> None:
     """Run demos and tests before MkDocs renders the site."""
-    global _coverage_markdown
+    global _coverage_markdown, _coverage_badge
     root = Path(config.config_file_path).resolve().parent
     docs = root / "docs"
     env = os.environ.copy()
@@ -59,6 +60,12 @@ def on_pre_build(config) -> None:
         coverage = json.loads(report.read_text())
 
     totals = coverage["totals"]
+    _coverage_badge = {
+        "schemaVersion": 1,
+        "label": "coverage",
+        "message": f"{totals['percent_covered_display']}%",
+        "color": "blue",
+    }
     rows = [
         "# Coverage",
         "",
@@ -85,3 +92,10 @@ def on_page_markdown(markdown, page, config, files):
     """Render the coverage page with the MkDocs theme."""
     if page.file.src_uri == "coverage.md":
         return _coverage_markdown
+
+
+def on_post_build(config) -> None:
+    """Publish the coverage percentage for the README badge."""
+    (Path(config["site_dir"]) / "coverage-badge.json").write_text(
+        json.dumps(_coverage_badge), encoding="utf-8"
+    )
